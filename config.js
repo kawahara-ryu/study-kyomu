@@ -10,6 +10,8 @@
 
 window.KYOMU_CONFIG = {
     schoolName: "わが校 定期試験特設スタジオ",
+    // 年度（空欄なら端末の現在年度を基準／?cfg= で新年度が届くと自動で進級クラス変更画面が出ます）
+    schoolYear: "",
     examName: "定期考査",
     // 空文字 "" の場合は画面上のバッジ（またはURLパラメータ ?exam=...&date=...）から毎回設定できます。
     // 固定したい場合は "2026-12-07" のように YYYY-MM-DD 形式で入力してください。
@@ -55,12 +57,14 @@ window.KYOMU_CONFIG = {
         maxHp: 30000 // 全校で30,000pt（約500時間）稼ぐと撃破！
     },
 
-    // Google Classroom × 事前入力Googleフォーム連携（プランA）
-    // teacher_dashboard.html の自動セットアップで発行したURLと entry ID を貼り付けます
+    // Google Classroom × 事前入力Googleフォーム連携（プランA・?cfg=URL自動接続対応）
+    // ★GitHub編集不要！GASスプレッドシートが発行する ?cfg=... 配布リンクを生徒が開くだけで
+    //   この設定が端末へ自動接続されるため、通常ここは空のままで全校運用できます。
     googleForm: {
         enabled: false,
         prefillBaseUrl: "",
         entries: {
+            examName: "entry.1000000",
             date: "entry.1000001",
             className: "entry.1000002",
             nickname: "entry.1000003",

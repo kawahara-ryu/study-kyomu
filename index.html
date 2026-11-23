@@ -612,6 +612,7 @@
                             <button type="button" class="btn-mini-outline" id="btn-restore-json">📂 JSONから復元</button>
                             <input type="file" id="input-restore-json" accept="application/json,.json" style="display:none;">
                         </div>
+                        <div class="field-hint" id="school-link-status" style="margin-bottom:12px;">🔗 学校フォーム連携：未接続（Classroomの配布リンクを開くと自動接続されます）</div>
                         <div class="danger-zone">
                             <button type="button" class="btn-mini-danger" id="btn-reset-all">🗑️ この端末のデータを初期化</button>
                         </div>
@@ -914,7 +915,9 @@
                         <button type="button" class="goal-chip" data-exam-preset="2学期 中間考査">2学期 中間</button>
                         <button type="button" class="goal-chip" data-exam-preset="2学期 期末考査">2学期 期末</button>
                         <button type="button" class="goal-chip" data-exam-preset="学年末考査">学年末考査</button>
-                        <button type="button" class="goal-chip" data-exam-preset="実力テスト・模試">実力・模試</button>
+                        <button type="button" class="goal-chip" data-exam-preset="冬課題テスト">❄️ 冬課題テスト</button>
+                        <button type="button" class="goal-chip" data-exam-preset="夏課題テスト">☀️ 夏課題テスト</button>
+                        <button type="button" class="goal-chip" data-exam-preset="実力テスト・模試">📝 実力・模試</button>
                     </div>
                 </div>
                 <div class="form-group">
@@ -1016,6 +1019,38 @@
             <div class="modal-foot">
                 <button type="button" class="btn-mini-outline" data-close-modal="modal-qr-import">キャンセル</button>
                 <button type="button" class="btn-start" id="btn-confirm-qr-import">📥 合体（マージ）する！</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         モーダル11: 新年度・進級クラス変更ポップアップ（年度切替時に自動表示）
+         ============================================================ -->
+    <div class="modal-backdrop" id="modal-new-year-class">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3 id="ny-modal-title">🌸 新年度おめでとう！新しいクラスを確認しよう</h3>
+            </div>
+            <div class="modal-body">
+                <div class="lego-mutter-box" style="margin-top:0;">
+                    <span class="lego-mutter-tag">🐧 チルペンギン先輩</span>
+                    <p class="lego-mutter-text" id="ny-prev-info">「進級＆新年度おめでとうペン！提出ミスを防ぐため、新しいクラスを選んでからスタートするペン！」</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="ny-class">1. 新年度のクラスを選んでね</label>
+                    <select id="ny-class" class="select-input"></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="ny-nickname">2. 公開ランキング用の二つ名（そのままでも変更してもOK）</label>
+                    <div class="nick-row">
+                        <input type="text" id="ny-nickname" class="text-input" maxlength="18" placeholder="そのまま or 新しく変更">
+                        <button type="button" class="btn-gacha-sm" id="btn-roll-nick-ny">🎲 引き直す</button>
+                    </div>
+                    <p class="field-hint">✨ これまで集めたガチャ図鑑や学習記録は消えずにそのまま引き継がれます！</p>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button type="button" class="btn-start" id="btn-ny-done">✅ この新クラスでスタートする！</button>
             </div>
         </div>
     </div>

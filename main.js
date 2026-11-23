@@ -11,7 +11,123 @@
 
 const CFG = window.KYOMU_CONFIG;
 const STORAGE_KEY = 'kyomu_study_state_v1';
+const SCHOOL_CFG_STORAGE_KEY = 'kyomu_school_cfg_v1';
+const FORM_ENTRY_KEYS = [
+    'examName', 'date', 'className', 'nickname', 'totalMinutes',
+    'effectivePoints', 'subjectBreakdown', 'dailyReports', 'streakDays', 'verifyCode'
+];
 const sound = new LegoSoundEngine();
+
+function isSafeHttpsUrl(u, requiredPrefix = 'https://') {
+    if (typeof u !== 'string') return false;
+    const s = u.trim();
+    return s.startsWith(requiredPrefix) && !/[\s"'<>]/.test(s);
+}
+
+function applySchoolConfigObj(rawObj, fromUrl = false) {
+    if (!rawObj || typeof rawObj !== 'object') return false;
+    let applied = false;
+
+    if (typeof rawObj.sn === 'string' && rawObj.sn.trim()) {
+        CFG.schoolName = rawObj.sn.trim().slice(0, 32);
+        applied = true;
+    }
+    if (typeof rawObj.yr === 'string' && /^\d{4}$/.test(rawObj.yr.trim())) {
+        CFG.schoolYear = rawObj.yr.trim();
+        applied = true;
+    } else if (typeof rawObj.yr === 'number' && rawObj.yr >= 2020 && rawObj.yr <= 2100) {
+        CFG.schoolYear = String(Math.floor(rawObj.yr));
+        applied = true;
+    }
+    if (typeof rawObj.ex === 'string' && rawObj.ex.trim()) {
+        CFG.examName = rawObj.ex.trim().slice(0, 24);
+        applied = true;
+    }
+    if (typeof rawObj.dt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawObj.dt.trim())) {
+        CFG.examDate = rawObj.dt.trim();
+        applied = true;
+    } else if (fromUrl && rawObj.dt === '') {
+        CFG.examDate = '';
+    }
+    if (typeof rawObj.sa === 'string' && rawObj.sa.trim()) {
+        CFG.securitySalt = rawObj.sa.trim().slice(0, 40);
+        applied = true;
+    }
+    if (rawObj.fn === 0 || rawObj.fn === false) {
+        CFG.allowFreeNickname = false;
+        applied = true;
+    } else if (rawObj.fn === 1 || rawObj.fn === true) {
+        CFG.allowFreeNickname = true;
+        applied = true;
+    }
+    if (isSafeHttpsUrl(rawObj.fu, 'https://docs.google.com/forms/')) {
+        CFG.googleForm.enabled = true;
+        CFG.googleForm.prefillBaseUrl = rawObj.fu.trim();
+        applied = true;
+    }
+    if (Array.isArray(rawObj.en) && rawObj.en.length >= 9) {
+        // 10項目版（先頭examName）または旧9項目版を自動判別して格納
+        const keys = rawObj.en.length >= 10 ? FORM_ENTRY_KEYS : FORM_ENTRY_KEYS.slice(1);
+        const nextEntries = { ...(CFG.googleForm.entries || {}) };
+        keys.forEach((k, idx) => {
+            const val = String(rawObj.en[idx] || '').trim();
+            if (!val) return;
+            nextEntries[k] = val.startsWith('entry.') ? val : `entry.${val}`;
+        });
+        CFG.googleForm.entries = nextEntries;
+        applied = true;
+    } else if (rawObj.en && typeof rawObj.en === 'object') {
+        CFG.googleForm.entries = { ...(CFG.googleForm.entries || {}), ...rawObj.en };
+        applied = true;
+    }
+    if (isSafeHttpsUrl(rawObj.bu, 'https://')) {
+        CFG.rankingBoard.publicBoardUrl = rawObj.bu.trim();
+        applied = true;
+    }
+    if (isSafeHttpsUrl(rawObj.cu, 'https://')) {
+        CFG.rankingBoard.publicCsvUrl = rawObj.cu.trim();
+        applied = true;
+    }
+
+    // 新しいテスト配布リンク(?cfg=...)を踏んだときは、前回の手動テスト設定も自動で最新テストへ同期！
+    if (fromUrl && applied && typeof state === 'object' && state) {
+        if (typeof rawObj.ex === 'string' && rawObj.ex.trim()) {
+            state.examSetting = {
+                name: rawObj.ex.trim().slice(0, 24),
+                date: (typeof rawObj.dt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawObj.dt.trim())) ? rawObj.dt.trim() : ''
+            };
+            saveState();
+        }
+    }
+    return applied;
+}
+
+function initSchoolConfigLink() {
+    // 1. 端末に記憶済みの学校連携設定を復元
+    try {
+        const saved = localStorage.getItem(SCHOOL_CFG_STORAGE_KEY);
+        if (saved) applySchoolConfigObj(JSON.parse(saved), false);
+    } catch (e) {}
+
+    // 2. Classroom配布URLの ?cfg=... を検出したら検証して自動保存＆適用（GitHub編集ゼロ運用！）
+    let linkedFromUrl = false;
+    try {
+        const sp = new URLSearchParams(window.location.search);
+        const cfgCode = (sp.get('cfg') || '').trim();
+        if (cfgCode) {
+            const parsed = JSON.parse(decodeUrlSafeBase64(cfgCode));
+            if (applySchoolConfigObj(parsed, true)) {
+                try { localStorage.setItem(SCHOOL_CFG_STORAGE_KEY, JSON.stringify(parsed)); } catch (e) {}
+                linkedFromUrl = true;
+            }
+            sp.delete('cfg');
+            const cleanUrl = location.pathname + (sp.toString() ? '?' + sp.toString() : '');
+            if (history.replaceState) history.replaceState(null, '', cleanUrl);
+        }
+    } catch (e) {}
+
+    return linkedFromUrl;
+}
 
 /* ============================================================================
    1. 脱力虚無キャラ 超軽量ベクターSVGアバター（画面＆PDFレシート共用）
@@ -641,10 +757,17 @@ function rollRandomNickname() {
     return adj + noun;
 }
 
+function getFiscalYearStr(d = new Date()) {
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    return String(m >= 4 ? y : y - 1);
+}
+
 function createDefaultState() {
     return {
         profile: {
             setupDone: false,
+            schoolYear: '',
             className: CFG.classes[0] || "1-1",
             nickname: rollRandomNickname(),
             dailyGoalMin: 60
@@ -794,6 +917,7 @@ function getStreakDays() {
 function buildSubmissionPayload(dateStr = getTodayStr()) {
     const sum = getTodaySummary(dateStr);
     const streak = getStreakDays();
+    const exam = getActiveExamInfo();
     const cls = state.profile.className || '1-1';
     const nick = (state.profile.nickname || 'ななしの虚無').replace(/\|/g, '');
     const breakdownParts = Object.entries(sum.bySubject)
@@ -806,6 +930,7 @@ function buildSubmissionPayload(dateStr = getTodayStr()) {
     const chk = computeVerifyChecksum(dateStr, cls, nick, sum.totalMin, sum.effectivePt, CFG.securitySalt);
     const verifyCode = `KYM1|${dateStr}|${cls}|${nick}|${sum.totalMin}|${sum.effectivePt}|${streak}|${breakdownText}|CHK:${chk}`;
     return {
+        examName: exam.name || '定期考査',
         date: dateStr,
         className: cls,
         nickname: nick,
@@ -826,6 +951,7 @@ function buildGoogleFormPrefillUrl(payload) {
     const params = new URLSearchParams();
     params.set('usp', 'pp_url');
     const map = gf.entries || {};
+    if (map.examName) params.set(map.examName, payload.examName);
     if (map.date) params.set(map.date, payload.date);
     if (map.className) params.set(map.className, payload.className);
     if (map.nickname) params.set(map.nickname, payload.nickname);
@@ -2383,6 +2509,17 @@ function renderSettingsTab() {
     }
     if (goalIn) goalIn.value = state.profile.dailyGoalMin || 60;
 
+    // 学校フォーム連携ステータス表示
+    const linkEl = document.getElementById('school-link-status');
+    if (linkEl) {
+        const exam = getActiveExamInfo();
+        if (CFG.googleForm.enabled && CFG.googleForm.prefillBaseUrl) {
+            linkEl.textContent = `✅ 学校フォーム自動接続中（対象テスト：${exam.name}）`;
+        } else {
+            linkEl.textContent = '🔗 学校フォーム連携：未接続（Classroomの配布リンクを開くと自動接続されます）';
+        }
+    }
+
     // ToDo 科目選択肢
     const todoSubj = document.getElementById('todo-subject');
     if (todoSubj) {
@@ -2572,6 +2709,7 @@ function submitToGoogleForm() {
         const wrap = document.getElementById('form-preview-fields');
         if (wrap) {
             const rows = [
+                ['テスト名', payload.examName],
                 ['日付', payload.date],
                 ['クラス', payload.className],
                 ['二つ名（公開用）', payload.nickname],
@@ -3044,6 +3182,42 @@ function initOnboarding() {
     }
 }
 
+function checkNewSchoolYearPrompt() {
+    // すでに利用済みの生徒が「新年度(yr)」の配布URLを開いたとき、旧クラスのまま提出するミスを防ぐため自動でポップアップ
+    if (!state.profile.setupDone) return;
+    const targetYear = String(CFG.schoolYear || '').trim();
+    if (!targetYear) return;
+    const savedYear = String(state.profile.schoolYear || '').trim();
+    if (savedYear === targetYear) return;
+
+    const titleEl = document.getElementById('ny-modal-title');
+    const infoEl = document.getElementById('ny-prev-info');
+    const clsSel = document.getElementById('ny-class');
+    const nickIn = document.getElementById('ny-nickname');
+
+    if (titleEl) titleEl.textContent = `🌸 ${targetYear}年度おめでとう！新しいクラスを確認しよう`;
+    if (infoEl) {
+        const prevTxt = savedYear ? `${savedYear}年度のクラス` : 'これまでのクラス';
+        infoEl.textContent = `「新年度おめでとうペン！${prevTxt}（${state.profile.className}組）から進級・クラス替えがあったら、下のリストで新しいクラスを選んでスタートするペン！」`;
+    }
+    if (clsSel) {
+        clsSel.innerHTML = buildClassOptionsHtml();
+        // 進級先クラス候補を親切に仮選択（例: 1-3 → 2-3、2-5 → 3-5）
+        let suggested = state.profile.className;
+        const m = String(state.profile.className || '').match(/^([12])-(.+)$/);
+        if (m) {
+            const nextCls = `${Number(m[1]) + 1}-${m[2]}`;
+            if (CFG.classes.includes(nextCls)) suggested = nextCls;
+        }
+        clsSel.value = suggested;
+    }
+    if (nickIn) {
+        nickIn.value = state.profile.nickname;
+        nickIn.readOnly = !CFG.allowFreeNickname;
+    }
+    openModal('modal-new-year-class');
+}
+
 function bindEvents() {
     // タブ切替（PC上部＆スマホ下部）
     document.querySelectorAll('.nav-tab, .bnav-item').forEach(btn => {
@@ -3170,6 +3344,7 @@ function bindEvents() {
             const nick = (document.getElementById('ob-nickname')?.value || '').trim() || rollRandomNickname();
             state.profile.className = cls;
             state.profile.nickname = nick.slice(0, 18);
+            state.profile.schoolYear = CFG.schoolYear || getFiscalYearStr();
             state.profile.setupDone = true;
             saveState();
             sound.playSuccess();
@@ -3177,6 +3352,26 @@ function bindEvents() {
             renderAll();
         });
     }
+
+    // 🌸 新年度・進級クラス変更モーダル
+    document.getElementById('btn-roll-nick-ny')?.addEventListener('click', () => {
+        sound.playLightOn();
+        const el = document.getElementById('ny-nickname');
+        if (el) el.value = rollRandomNickname();
+    });
+    document.getElementById('btn-ny-done')?.addEventListener('click', () => {
+        const cls = document.getElementById('ny-class')?.value || state.profile.className;
+        const nick = (document.getElementById('ny-nickname')?.value || '').trim() || state.profile.nickname || rollRandomNickname();
+        state.profile.className = cls;
+        state.profile.nickname = nick.slice(0, 18);
+        state.profile.schoolYear = CFG.schoolYear || getFiscalYearStr();
+        state.profile.setupDone = true;
+        saveState();
+        sound.playFanfare();
+        closeModal('modal-new-year-class');
+        renderAll();
+        showToast(`🌸 ${state.profile.schoolYear}年度「${cls}組」へクラスを更新しました！`);
+    });
 
     // タイマーモード切替
     document.querySelectorAll('#timer-mode-pills .mode-pill').forEach(btn => {
@@ -3650,7 +3845,7 @@ function bindEvents() {
     // ♿ モーダル背景クリック閉じ＆Escキー閉じ＆タブ左右キー移動
     document.querySelectorAll('.modal-backdrop').forEach(bd => {
         bd.addEventListener('click', e => {
-            if (e.target === bd && bd.id !== 'modal-onboarding') {
+            if (e.target === bd && bd.id !== 'modal-onboarding' && bd.id !== 'modal-new-year-class') {
                 sound.playClick();
                 closeModal(bd.id);
             }
@@ -3659,7 +3854,7 @@ function bindEvents() {
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             document.querySelectorAll('.modal-backdrop.active').forEach(bd => {
-                if (bd.id !== 'modal-onboarding') closeModal(bd.id);
+                if (bd.id !== 'modal-onboarding' && bd.id !== 'modal-new-year-class') closeModal(bd.id);
             });
         }
     });
@@ -3787,13 +3982,19 @@ function syncAmbientUI() {
 
 // 起動！
 document.addEventListener('DOMContentLoaded', () => {
+    const linkedFromUrl = initSchoolConfigLink();
     applyA11ySettings();
     checkStorageHealth();
     initAmbientMixerUI();
     bindEvents();
     renderAll();
     initOnboarding();
+    checkNewSchoolYearPrompt();
     checkIncomingQrSync();
+    if (linkedFromUrl) {
+        const exam = getActiveExamInfo();
+        showToast(`🔗 「${exam.name}」の学校フォーム連携を自動設定しました！`, { duration: 4800 });
+    }
     if (state.activeTimer) {
         ensureTimerLoop();
     }
