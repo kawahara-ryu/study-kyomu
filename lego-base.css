@@ -1,0 +1,329 @@
+/* ============================================================================
+   LEGO Base CSS (lego-base.css)
+   高校「情報I」モモ肉マン・Web教材スタジオ 共通基盤スタイル
+   - 合字バグ完全撲滅 (font-variant-ligatures: none)
+   - box-shadow 安全脈動アニメ (transform: scale() 不使用)
+   - 脱力虚無猫のぼやき吹き出し / Google Classroom あいことばBOX / 汎用モーダル
+   ============================================================================ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    font-variant-ligatures: none !important;
+    font-feature-settings: "liga" 0, "calt" 0 !important;
+}
+
+:root {
+    /* 脱力虚無猫・ポップキャンディ共通トークン */
+    --lego-bg-dark: #070D19;
+    --lego-bg-card: #121F38;
+    --lego-text: #F8FAFC;
+    --lego-muted: #94A3B8;
+    --lego-cyan: #00F0FF;
+    --lego-pink: #FF3B9A;
+    --lego-gold: #F59E0B;
+    --lego-green: #10B981;
+    --lego-purple: #A855F7;
+    --lego-rose: #F43F5E;
+    --lego-font-main: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif;
+    --lego-font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
+}
+
+/* クリック判定が絶対に揺れない安全脈動ガイド (box-shadow のみ変化) */
+@keyframes legoPulseRing {
+    0%   { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.55); }
+    70%  { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
+}
+
+.lego-pulse-guide {
+    animation: legoPulseRing 1.8s ease-out infinite;
+}
+
+/* 脱力虚無猫のぼやき吹き出し */
+.lego-mutter-box {
+    background: rgba(255, 59, 154, 0.12);
+    border: 1.5px dashed var(--lego-pink);
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin: 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.lego-mutter-tag {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: var(--lego-pink);
+    letter-spacing: 0.04em;
+}
+
+.lego-mutter-text {
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--lego-text);
+    line-height: 1.45;
+    margin: 0;
+}
+
+/* Google Classroom 提出用あいことばBOX */
+.lego-passcode-box {
+    background: rgba(0, 240, 255, 0.08);
+    border: 2px dashed var(--lego-cyan);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin: 18px auto;
+    max-width: 620px;
+    text-align: center;
+}
+
+.lego-passcode-head {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--lego-cyan);
+    margin-bottom: 10px;
+}
+
+.lego-passcode-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.lego-passcode-val {
+    background: #091222;
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: #FFFFFF;
+    user-select: all;
+}
+
+.lego-btn-copy {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: #070D19;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.lego-btn-copy:hover {
+    opacity: 0.9;
+}
+
+.lego-copy-toast {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--lego-green);
+    min-height: 1.2em;
+}
+
+/* 汎用モーダル（虎の巻 / 共通テスト実戦演習） */
+.lego-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 9, 20, 0.82);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 900;
+}
+
+.lego-modal-backdrop.active {
+    display: flex;
+}
+
+.lego-modal-window {
+    background: #0D1629;
+    border: 2px solid var(--lego-cyan);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 780px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+}
+
+.lego-modal-header {
+    padding: 14px 20px;
+    background: #111C33;
+    border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.lego-modal-header h3 {
+    margin: 0;
+    font-size: 1.02rem;
+    color: #FFFFFF;
+}
+
+.lego-modal-close {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.lego-modal-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 16px;
+    background: #091222;
+    border-bottom: 1px solid #1E3766;
+}
+
+.lego-tab-btn {
+    background: #11203D;
+    color: #CBD5E1;
+    border: 1px solid #1E3766;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.lego-tab-btn.active {
+    background: var(--lego-cyan);
+    color: #070D19;
+    border-color: var(--lego-cyan);
+}
+
+.lego-modal-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+    color: var(--lego-text);
+    line-height: 1.6;
+}
+
+.lego-modal-footer {
+    padding: 12px 20px;
+    background: #091222;
+    border-top: 1px solid #1E3766;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* 共通テスト実戦演習（スピード小テスト・即時解説） */
+.lego-exam-q {
+    background: #0A1426;
+    border: 1px solid #1E3766;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+}
+
+.lego-exam-q-title {
+    font-weight: 800;
+    color: var(--lego-cyan);
+    margin-bottom: 6px;
+    font-size: 0.92rem;
+}
+
+.lego-exam-q-text {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.lego-exam-opts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+@media (max-width: 640px) {
+    .lego-exam-opts {
+        grid-template-columns: 1fr;
+    }
+}
+
+.lego-exam-opt {
+    background: #11203D;
+    border: 1px solid #26437A;
+    color: #E2E8F0;
+    border-radius: 8px;
+    padding: 9px 12px;
+    text-align: left;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.lego-exam-opt.correct {
+    background: rgba(16, 185, 129, 0.25);
+    border-color: var(--lego-green);
+    color: #A7F3D0;
+    font-weight: 800;
+}
+
+.lego-exam-opt.wrong {
+    background: rgba(244, 63, 94, 0.25);
+    border-color: var(--lego-rose);
+    color: #FECDD3;
+}
+
+.lego-exam-exp {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #070F1E;
+    border-left: 3px solid var(--lego-cyan);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.84rem;
+}
+
+.lego-exam-banner {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.14), rgba(245, 158, 11, 0.16));
+    border: 2px solid var(--lego-gold);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+/* 逆引きオーダーパズル共通カード */
+.lego-order-card {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1.5px dashed var(--lego-gold);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 12px 0;
+}
+
+.lego-order-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--lego-gold);
+}
+
+.lego-order-msg {
+    margin-top: 8px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    min-height: 1.3em;
+}
+
+.lego-order-msg.ok { color: var(--lego-green); }
+.lego-order-msg.ng { color: var(--lego-rose); }
+
