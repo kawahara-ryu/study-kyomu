@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>先生用ダッシュボード｜テスト前夜の虚無バイト</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;800&family=M+PLUS+Rounded+1c:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            font-variant-ligatures: none !important;
+            font-feature-settings: "liga" 0, "calt" 0 !important;
+        }
+        :root {
+            --bg: #0E111E;
+            --card: #181D31;
+            --card2: #212842;
+            --text: #F8FAFC;
+            --muted: #94A3B8;
+            --cyan: #22D3EE;
+            --pink: #FF4DA6;
+            --yellow: #FACC15;
+            --mint: #34D399;
+            --rose: #F43F5E;
+            --font-main: 'M PLUS Rounded 1c', 'Yu Gothic UI', sans-serif;
+            --font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
+        }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            min-height: 100vh;
+        }
+        header {
+            background: #121627;
+            border-bottom: 2px solid var(--cyan);
+            padding: 12px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        header h1 { margin: 0; font-size: 1.15rem; }
+        .badge {
+            font-size: 0.74rem;
+            font-weight: 900;
+            background: rgba(34, 211, 238, 0.16);
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+            border-radius: 999px;
+            padding: 2px 10px;
+            margin-right: 8px;
+        }
+        .back-link {
+            background: var(--card2);
+            color: #FFF;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 7px 13px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 0.84rem;
+        }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #14192B;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .tab-btn {
+            background: var(--card);
+            border: 1.5px solid rgba(255,255,255,0.14);
+            color: var(--muted);
+            border-radius: 10px;
+            padding: 9px 16px;
+            font-family: var(--font-main);
+            font-weight: 800;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: var(--cyan);
+            color: #0E111E;
+            border-color: var(--cyan);
+        }
+        main {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 18px 16px 40px;
+        }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .card {
+            background: var(--card);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+        .card h2 { margin: 0 0 8px; font-size: 1.05rem; color: var(--yellow); }
+        .card p { margin: 0 0 10px; font-size: 0.86rem; color: var(--muted); line-height: 1.55; }
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .step-box {
+            background: var(--card2);
+            border-radius: 12px;
+            padding: 12px;
+            border-left: 4px solid var(--pink);
+            font-size: 0.84rem;
+        }
+        .step-box strong { display: block; color: #FFF; margin-bottom: 4px; }
+        .code-area {
+            width: 100%;
+            background: #090C15;
+            color: #E2E8F0;
+            border: 1.5px solid rgba(34,211,238,0.35);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            line-height: 1.45;
+            resize: vertical;
+        }
+        .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; align-items: center; }
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-family: var(--font-main);
+            font-weight: 900;
+            font-size: 0.86rem;
+            cursor: pointer;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--cyan), var(--mint)); color: #0E111E; }
+        .btn-accent { background: linear-gradient(135deg, var(--yellow), var(--pink)); color: #0E111E; }
+        .btn-ghost { background: var(--card2); color: #FFF; border: 1px solid rgba(255,255,255,0.2); }
+        .toast { font-size: 0.84rem; font-weight: 800; color: var(--mint); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
+        .field { margin-bottom: 10px; }
+        .field label { display: block; font-size: 0.8rem; font-weight: 800; margin-bottom: 4px; }
+        .field input, .field select {
+            width: 100%;
+            background: #0B0E18;
+            border: 1.5px solid rgba(255,255,255,0.18);
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: #FFF;
+            font-family: var(--font-main);
+            font-size: 0.88rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            margin-top: 8px;
+        }
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: left;
+        }
+        th { color: var(--cyan); font-weight: 900; background: #121728; }
+        .ok-pill { background: rgba(52,211,153,0.2); color: #6EE7B7; padding: 2px 8px; border-radius: 999px; font-weight: 800; font-size: 0.74rem; }
+        .ng-pill { background: rgba(244,63,94,0.25); color: #FDA4AF; padding: 2px 8px; border-radius: 999px; font-weight: 900; font-size: 0.74rem; }
+        .raid-bar-wrap {
+            height: 20px;
+            background: #0A0D16;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.15);
+            margin: 8px 0;
+        }
+        .raid-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--rose), var(--yellow));
+            transition: width 0.4s;
+        }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+        .kpi-box { background: var(--card2); border-radius: 12px; padding: 12px; text-align: center; }
+        .kpi-box span { display: block; font-size: 0.74rem; color: var(--muted); }
+        .kpi-box strong { font-family: var(--font-mono); font-size: 1.25rem; color: var(--yellow); }
+
+        @media print {
+            header, .tabs, .no-print { display: none !important; }
+            body { background: #FFF; color: #111; }
+            .card { background: #FFF; color: #111; border: 1.5px solid #333; box-shadow: none; }
+            th { background: #EEE; color: #111; }
+            td, th { border-bottom: 1px solid #CCC; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <span class="badge">🧑‍🏫 先生専用コンパニオン</span>
+            <h1>テスト前夜の虚無バイト — 自動ランキング＆Googleフォーム構築</h1>
+        </div>
+        <a href="./index.html" class="back-link">← 生徒用アプリへ戻る</a>
+    </header>
+
+    <nav class="tabs">
+        <button type="button" class="tab-btn active" data-t="gas">🚀 1. Googleフォーム＆自動ランキング構築(GAS)</button>
+        <button type="button" class="tab-btn" data-t="agg">📊 2. 提出コード一括集計＆改ざん監査ボード</button>
+        <button type="button" class="tab-btn" data-t="cfg">⚙️ 3. config.js＆配布URLウィザード</button>
+        <button type="button" class="tab-btn" data-t="manual">📖 4. 完全運用マニュアル＆来年度引き継ぎ</button>
+    </nav>
+
+    <main>
+        <!-- ============================================================
+             TAB 1: Googleフォーム＆自動ランキング表（GAS自動構築キット）
+             ============================================================ -->
+        <section id="panel-gas" class="panel active">
+            <div class="card">
+                <h2>🚀 GitHub編集ゼロ＆誰でも30秒！1フォーム単一DB × テスト別公開ランキング構築</h2>
+                <p>下のスクリプトを Googleスプレッドシートの「拡張機能 → Apps Script」に貼り付けて初回1回だけ実行すると、<strong>①学校ログイン必須の共通Googleフォーム（全テスト使い回し） ②先生専用の本名＆クラス別推移分析ブック ③別ファイル・本名ゼロのClassroom公開ランキングブック</strong> が自動構築されます！<br>2回目以降（冬課題テスト・実力テスト・定期考査）は、<strong>スプレッドシートの「テスト名」セルを書き換えて上部メニューを1クリックするだけ</strong>で、新しいClassroom配布URL（<code>?cfg=...</code>）が自動発行され、公開ランキングもそのテスト専用へ切り替わります！</p>
+                <div class="steps">
+                    <div class="step-box">
+                        <strong>Step 1. 先生専用シートへGASを貼る（初回のみ）</strong>
+                        学校アカウントで空のスプレッドシート（非公開）を作り、「拡張機能 → Apps Script」へ下のコードを貼って保存→リロード。
+                    </div>
+                    <div class="step-box">
+                        <strong>Step 2. 上部メニューから初回セットアップ</strong>
+                        シート上部に出る <code>🏪 虚無バイト管理 → 🚀 1. 初回セットアップ</code> を1回クリック！フォーム＆別ファイル公開ブックが完成します。
+                    </div>
+                    <div class="step-box">
+                        <strong>Step 3. 公開ブックを共有＆Classroomへ貼る</strong>
+                        <code>⚙️テスト切替＆配布URL</code> シートに出る<strong>「★Classroom配布用アプリURL（?cfg=...）」</strong>と<strong>「★公開ランキングURL」</strong>を貼るだけ！（GitHub編集不要！）
+                    </div>
+                    <div class="step-box">
+                        <strong>Step 4. 冬課題テスト・次回テストの切替（10秒）</strong>
+                        <code>⚙️テスト切替＆配布URL</code> のテスト名・日程を書き換えて、メニューの <code>🔄 2. テスト切替＆URL再発行</code> を押すだけ！過去の推移分析も自動蓄積されます！
+                    </div>
+                </div>
+                <div class="field" style="max-width:560px; margin-top:8px;">
+                    <label for="gas-app-url">🌐 公開した生徒用アプリのURL（本番URL設定済み・別URLへ移す場合のみ変更）</label>
+                    <input type="url" id="gas-app-url" value="https://kawahara-ryu.github.io/study-kyomu/" placeholder="https://kawahara-ryu.github.io/study-kyomu/">
+                </div>
+                <div class="btn-row">
+                    <button type="button" class="btn btn-primary" id="btn-copy-gas">📋 自動構築GASスクリプトをコピー</button>
+                    <span class="toast" id="gas-copy-toast"></span>
+                </div>
+                <textarea id="gas-script-box" class="code-area" rows="20" readonly></textarea>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             TAB 2: 提出コード一括集計＆改ざん監査ボード（ローカル即動作）
+             ============================================================ -->
+        <section id="panel-agg" class="panel">
+            <div class="card no-print">
+                <h2>📊 Classroom提出コード一括集計＆改ざん監査（オフラインでも即動作！）</h2>
+                <p>生徒が Classroom に提出した <code>KYM1|...</code> 形式のコードを行ごとに貼り付けて「集計する」を押すと、<strong>改ざんチェックサム検証・同日端末またぎ合算・クラス対抗平均・二つ名ランキング・レイドボスHP</strong> を即座に生成します！</p>
+                <div class="btn-row">
+                    <button type="button" class="btn btn-primary" id="btn-run-agg">⚡ 集計＆改ざん監査を実行</button>
+                    <button type="button" class="btn btn-accent" id="btn-load-sample">🎭 サンプル提出データ（改ざん例1件入り）を読み込む</button>
+                    <button type="button" class="btn btn-ghost" id="btn-print-ranking">🖨️ 公開ランキングを軽量PDF保存</button>
+                </div>
+                <textarea id="agg-input" class="code-area" rows="7" placeholder="KYM1|2026-11-22|2-3|定時退社のチルペンギン|75|90|3|数学:45分,英語:30分|CHK:XXXXXX&#10;（1行に1件ずつ貼り付け。他の文字が混ざっていても KYM1|... 部分を自動抽出します）"></textarea>
+            </div>
+
+            <!-- 集計結果エリア -->
+            <div id="agg-results" style="display:none;">
+                <div class="kpi-grid" id="agg-kpis"></div>
+
+                <div class="card">
+                    <h2>⚔️ 全校協力レイドボス戦：<span id="agg-boss-name">赤点ちくわ大魔王</span></h2>
+                    <div id="agg-boss-hp-text" style="font-family:var(--font-mono); font-weight:900; color:var(--yellow);"></div>
+                    <div class="raid-bar-wrap"><div class="raid-bar-fill" id="agg-boss-bar" style="width:100%;"></div></div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h2>🔥 クラス対抗ランキング（1人あたり平均pt）</h2>
+                        <table id="tbl-class-rank">
+                            <thead><tr><th>順位</th><th>クラス</th><th>参加人数</th><th>クラス合計</th><th>1人平均</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h2>👑 二つ名個人ランキング（公開用・本名なし）</h2>
+                        <table id="tbl-ind-rank">
+                            <thead><tr><th>順位</th><th>二つ名</th><th>クラス</th><th>連続</th><th>有効pt</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card no-print">
+                    <h2>🛡️ 先生専用：改ざん検知・監査ログ</h2>
+                    <p>※チェックサムが一致しない行（数字を手書き改変した疑い）は赤くハイライトされ、ランキング集計から自動除外されます。</p>
+                    <table id="tbl-audit">
+                        <thead><tr><th>判定</th><th>日付</th><th>クラス</th><th>二つ名</th><th>時間</th><th>有効pt</th><th>内訳</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             TAB 3: config.js 設定ウィザード
+             ============================================================ -->
+        <section id="panel-cfg" class="panel">
+            <div class="grid-2">
+                <div class="card">
+                    <h2>⚙️ 定期試験＆Googleフォーム設定入力</h2>
+                    <div class="field">
+                        <label for="w-school">学校名・タイトル</label>
+                        <input type="text" id="w-school">
+                    </div>
+                    <div class="field">
+                        <label for="w-year">年度（4桁・例：2026 / 2027 ※年度が変わると生徒に自動で進級クラス変更画面が出ます）</label>
+                        <input type="text" id="w-year" maxlength="4" placeholder="例：2026">
+                    </div>
+                    <div class="field">
+                        <label for="w-exam">定期試験名（例：1学期 中間考査 / 冬課題テスト / 実力テスト）</label>
+                        <input type="text" id="w-exam">
+                    </div>
+                    <div class="field">
+                        <label for="w-date">試験開始日（空欄なら画面タップで各自設定）</label>
+                        <input type="date" id="w-date">
+                    </div>
+                    <div class="field">
+                        <label for="w-app-url">生徒用アプリの公開URL（GitHub Pages 本番URL・毎回の配布リンク生成用）</label>
+                        <input type="url" id="w-app-url" value="https://kawahara-ryu.github.io/study-kyomu/" placeholder="https://kawahara-ryu.github.io/study-kyomu/">
+                    </div>
+                    <div class="field">
+                        <label for="w-classes">クラス一覧（カンマ区切り）</label>
+                        <input type="text" id="w-classes">
+                    </div>
+                    <div class="field">
+                        <label for="w-freenick">二つ名（ニックネーム）ルール</label>
+                        <select id="w-freenick">
+                            <option value="true">ガチャ ＆ 自由入力 どちらもOK</option>
+                            <option value="false">虚無二つ名ガチャのみ許可（不適切ネーム防止）</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="w-salt">学校秘密キー（改ざん検知用・GASと一致させる）</label>
+                        <input type="text" id="w-salt">
+                    </div>
+                    <div class="field">
+                        <label for="w-form-url">事前入力GoogleフォームURL（GASの「設定メモ」から貼付）</label>
+                        <input type="url" id="w-form-url" placeholder="https://docs.google.com/forms/d/e/XXXX/viewform">
+                    </div>
+                    <div class="field">
+                        <label for="w-entries-json">GASで出力された entries JSON（任意）</label>
+                        <input type="text" id="w-entries-json" placeholder='{"date":"entry.111", ...}'>
+                    </div>
+                    <div class="field">
+                        <label for="w-board-url">公開ランキング閲覧URL（スプレッドシート共有リンク）</label>
+                        <input type="url" id="w-board-url" placeholder="https://docs.google.com/spreadsheets/d/XXXX/edit?usp=sharing">
+                    </div>
+                    <div class="field">
+                        <label for="w-csv-url">公開ランキングCSV URL（任意：アプリ内リアルタイム表示用）</label>
+                        <input type="url" id="w-csv-url" placeholder="https://docs.google.com/spreadsheets/d/e/XXXX/pub?output=csv">
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-primary" id="btn-gen-config">✨ config.js を生成</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔗 ファイル編集不要！Classroom 配布用リンク（毎回使い回し用）</h2>
+                    <p>試験名と試験日を入れて「生成」すると、ファイルを書き換えずに全生徒の表示を一斉切替できるURLができます。</p>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-primary" id="btn-copy-dist-url">📋 配布リンクをコピー</button>
+                        <span class="toast" id="dist-copy-toast"></span>
+                    </div>
+                    <input type="text" id="dist-url-output" class="code-area" style="height:40px;" readonly>
+
+                    <h2 style="margin-top:16px;">📄 生成された config.js（初回設定の上書き保存用）</h2>
+                    <p>下のコードをコピーして、アプリフォルダ内の <code>config.js</code> に上書き保存すれば完了です！</p>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-accent" id="btn-copy-config">📋 config.js 全文をコピー</button>
+                        <span class="toast" id="cfg-copy-toast"></span>
+                    </div>
+                    <textarea id="cfg-output" class="code-area" rows="20" readonly></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             TAB 4: 完全運用マニュアル＆来年度（新年度4月）引き継ぎガイド
+             ============================================================ -->
+        <section id="panel-manual" class="panel">
+            <div class="card">
+                <div class="btn-row" style="justify-content:space-between; margin-top:0;">
+                    <h2 style="margin:0;">📖 先生用かんたん完全運用マニュアル（引き継ぎ用・このまま印刷PDF可）</h2>
+                    <button type="button" class="btn btn-primary no-print" id="btn-print-manual">🖨️ このマニュアルを印刷 / PDF保存</button>
+                </div>
+                <p>このアプリは<strong>「一度GitHubに置けば二度とコード編集不要」</strong>で、Googleスプレッドシート上の操作だけで毎回のテスト切替・本名管理・学年別二つ名ランキング公開・クラス別推移分析まで完結します。（※同じマニュアルはGAS実行時にスプレッドシート内 <code>📖 先生用マニュアル（必読）</code> シートへも自動作成されます！）</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h2>🔰 1. 全体のしくみ（本名漏洩ゼロの2ブック分離）</h2>
+                    <table>
+                        <thead><tr><th>ファイル / 場所</th><th>閲覧できる人</th><th>中身の役割</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>生徒用Webアプリ</strong><br>(GitHub Pages)</td><td>全生徒</td><td>タイマー・1週間計画・環境音・PDF作成（サーバーDBなし・個人データ保存なし）</td></tr>
+                            <tr><td><strong>先生用スプレッドシート</strong><br>（元のブック）</td><td><strong>先生のみ（完全非公開）</strong></td><td>フォーム回答（学校メール本名）・改ざん監査・クラス別/個人別推移分析・テスト切替操作</td></tr>
+                            <tr><td><strong>公開用ランキングブック</strong><br>（別ファイル自動生成）</td><td>学校ドメイン内の閲覧共有</td><td><strong>本名ゼロ・二つ名のみ！</strong> 全体/1年/2年/3年ランキング・レイドボス・クラス推移（匿名）</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h2>🔄 2. 毎回のテスト前（所要10秒・冬課題/実力/定期考査すべて共通）</h2>
+                    <ol style="margin:6px 0 0; padding-left:20px; line-height:1.75; font-size:0.86rem; color:#E2E8F0;">
+                        <li>先生用スプレッドシートの <strong><code>⚙️テスト切替＆配布URL</code></strong> シートを開く。</li>
+                        <li><strong>B4セル（現在のテスト名）</strong> を書き換える（例：<code>冬課題テスト</code> / <code>1月実力テスト</code> / <code>2学期期末考査</code>）。</li>
+                        <li><strong>B5セル（試験開始日）</strong> を <code>YYYY-MM-DD</code> で入力（不要なら空欄）。</li>
+                        <li>上部メニューの <strong><code>🏪 虚無バイト管理 → 🔄 2. テスト切替＆URL再発行</code></strong> を1回クリック！</li>
+                        <li>自動更新された <strong>B9（生徒用配布URL）</strong> と <strong>B10（公開ランキングURL）</strong> をClassroomに貼るだけ！（※公開ランキングも自動で新テスト分のみに切り替わり、過去テストは推移シートに蓄積されます）</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🌸 3. 来年度（新年度4月・進級＆クラス替え）のやることリスト（所要2分）</h2>
+                <p>クラス替えで前年度の「1-3組」と新1年の「1-3組」が混ざるのを防ぐため、<strong>スプレッドシートだけ年度ごとに新しく分けます</strong>（GitHubのアプリ本体は一切変更不要です！）。</p>
+                <table>
+                    <thead><tr><th style="width:60px;">手順</th><th style="width:240px;">作業内容</th><th>具体的なやり方・ポイント</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Step 1</strong></td><td>前年度シートを保管</td><td>今年度の先生用スプレッドシートの名前を「<code>2026年度_虚無バイト記録（保管用）</code>」へ変更してそのまま保存。</td></tr>
+                        <tr><td><strong>Step 2</strong></td><td>新年度用シートを作成</td><td>Googleドライブで新規スプレッドシート（例：<code>2027年度_虚無バイト管理</code>）を作成し、「拡張機能 → Apps Script」にタブ1のGASコードを貼って保存→リロード。（※前年度シートを「コピー」した場合は古い回答・ログタブを削除してから次へ）</td></tr>
+                        <tr><td><strong>Step 3</strong></td><td>年度とテスト名を入力</td><td><code>⚙️テスト切替＆配布URL</code> の <strong>B2（アプリURL）</strong>、<strong>B3（年度：例 <code>2027</code>）</strong>、<strong>B4（テスト名：例 <code>2027 1学期中間考査</code>）</strong>、<strong>B5（試験日）</strong> を入力。</td></tr>
+                        <tr><td><strong>Step 4</strong></td><td>初回セットアップを実行</td><td>上部メニュー <strong><code>🏪 虚無バイト管理 → 🚀 1. 初回セットアップ</code></strong> を1回クリック！新年度専用のGoogleフォームと別ファイル公開ランキングブックが自動生成されます。</td></tr>
+                        <tr><td><strong>Step 5</strong></td><td>公開ブックだけ閲覧共有</td><td>B10に出た<strong>別ファイル「【Classroom公開用】二つ名ランキング」</strong>を開き、右上「共有」を<strong>「学校ドメイン内のリンクを知っている全員：閲覧者」</strong>に設定。（※先生用ブックは絶対に共有しないこと！）</td></tr>
+                        <tr><td><strong>Step 6</strong></td><td>ClassroomへURLを配布</td><td><strong>B9（新年度アプリURL）</strong> と <strong>B10（新年度公開ランキングURL）</strong> を新クラスのClassroomへ貼るだけ！進級した2・3年生が開くと<strong>自動で「🌸 新年度クラス変更画面」がポップアップ</strong>するため、旧クラスのまま提出するミスが起きません！</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h2>📢 4. Classroom投稿用・生徒アナウンス例文（コピペOK）</h2>
+                    <div class="btn-row no-print">
+                        <button type="button" class="btn btn-primary" id="btn-copy-post-normal">📋 通常テスト用をコピー</button>
+                        <button type="button" class="btn btn-accent" id="btn-copy-post-newyear">🌸 新年度(4月)用をコピー</button>
+                        <span class="toast" id="post-copy-toast"></span>
+                    </div>
+                    <textarea id="classroom-post-sample" class="code-area" rows="11" readonly>【テスト勉強記録アプリ：テスト前夜の虚無バイト】
+今回のテストに向けた学習時間管理アプリです！スマホでもChromebookでも使えます。
+
+▼ アプリを開く（まずはこのリンクから開いてね！）
+（ここにスプレッドシート B9 の配布URLを貼る）
+
+▼ 公開用・二つ名ランキング表（本名は出ません）
+（ここにスプレッドシート B10 の公開ランキングURLを貼る）
+
+【毎日のやり方】
+1. 教科を選んでタイマー出勤（環境音や1週間計画も使えます）
+2. 終わったら8文字以上の日報を書いてカフェを進化させよう
+3. 1日の終わりに「退勤・PDF」タブから ①Googleフォーム送信 ②超軽量PDFをこの課題に提出！
+※学校PCと自宅スマホ両方使う人は、設定タブの「📷 引き継ぎQR」で合体できます。</textarea>
+                </div>
+
+                <div class="card">
+                    <h2>📊 5. 推移分析＆トラブルシューティング Q&A</h2>
+                    <ul style="margin:0; padding-left:18px; line-height:1.65; font-size:0.83rem; color:#E2E8F0;">
+                        <li><strong>クラス別・個人別の推移グラフを作るには？</strong><br>
+                            先生用ブックの <code>先生用_クラス別テスト推移</code> シートを開き、表全体を選択 → 上部メニュー「挿入 → グラフ」で全クラスのテスト別平均時間推移グラフが一瞬で完成します！</li>
+                        <li><strong>Q. 上部メニュー「🏪 虚無バイト管理」が出ない</strong><br>
+                            スプレッドシートを再読み込み（F5）して5秒ほど待つと表示されます。</li>
+                        <li><strong>Q. 初回実行時に「Googleで確認されていません」と出た</strong><br>
+                            自作スクリプトの標準警告です。左下の「詳細」→「（プロジェクト名）に移動」→「許可」で進めてください。</li>
+                        <li><strong>Q. 生徒から「ランキングが見られない」と言われた</strong><br>
+                            別ファイルの「公開用ランキングブック」の共有設定が制限付きのままです。右上「共有」で校内閲覧可にしてください。</li>
+                        <li><strong>Q. 生徒が「要確認(改ざん疑い)」と赤表示になった</strong><br>
+                            フォームの数字を生徒が手書き編集した可能性があります。Classroom提出PDFと照合してください。</li>
+                        <li><strong>Q. 来年度クラスが9組に増えたら？</strong><br>
+                            その場合のみGitHubの <code>config.js</code> の <code>classes</code> 配列に <code>"1-9"</code> を追記すれば反映されます。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🏫 6. 担当の先生が異動するとき（前の学校への引き継ぎ ＆ 異動先で新しく使う方法）</h2>
+                <p>GitHub上のアプリ本体は学校データを持たない「空の汎用エンジン」のため、<strong>同じ1つのGitHub URLのまま、前の学校（A校）と異動先の学校（B校）でデータが1件も混ざらず独立運用</strong>できます！</p>
+                <table>
+                    <thead><tr><th style="width:220px;">ケース</th><th>具体的な手順・注意点</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>前の学校（A校）へ<br>バトンタッチするとき</strong></td>
+                            <td>異動後に前任者のA校Googleアカウントが削除されると、オーナーのままのシートやトリガーが止まってしまいます。<br><strong>異動前にA校の後任の先生のアカウントで新年度シートを新規作成（またはコピー）し、<code>🚀 1. 初回セットアップ</code> を1回押してもらう</strong>だけで、フォーム・公開ランキング・自動集計のオーナー権限が完全にA校へ引き継がれます！（※GitHubリポジトリ自体は削除せず公開のまま残してください）</td>
+                        </tr>
+                        <tr>
+                            <td><strong>異動先の新しい学校（B校）で<br>新しく使い始めるとき</strong></td>
+                            <td><strong>GitHub操作ゼロ・所要2分！</strong><br>① B校のGoogleアカウントで空のスプレッドシートを作成 → タブ1のGASコードを貼って保存→リロード<br>② <code>⚙️テスト切替＆配布URL</code> の <strong>B2（今と同じGitHubアプリURL）</strong>・<strong>B7（B校の学校名）</strong> を入力<br>③ 上部メニュー <strong><code>🏪 虚無バイト管理 → 🚀 1. 初回セットアップ</code></strong> を1回クリック！<br>→ B校のGoogleドライブ内に、B校専用のフォーム・公開ランキング・<code>?cfg=...</code>配布URLが自動完成します（A校のデータとは物理的に完全分離！）。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="./config.js"></script>
+    <script>
+        const CFG = window.KYOMU_CONFIG;
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function computeVerifyChecksum(dateStr, className, nickname, totalMin, effectivePt, salt) {
+            const raw = dateStr + '|' + className + '|' + nickname + '|' + totalMin + '|' + effectivePt + '|' + (salt || CFG.securitySalt);
+            let hash = 2166136261;
+            for (let i = 0; i < raw.length; i++) {
+                hash ^= raw.charCodeAt(i);
+                hash = Math.imul(hash, 16777619) >>> 0;
+            }
+            return hash.toString(16).toUpperCase().padStart(8, '0').slice(0, 6);
+        }
+
+        // GAS自動構築コードを生成（1フォーム単一DB × テスト別公開ランキング × 推移分析 × ?cfg=ゼロ編集URL発行 × シート内完全マニュアル自動生成）
+        function buildGasScript() {
+            const salt = CFG.securitySalt || 'KYOMU-SCHOOL-2026';
+            const school = CFG.schoolName || 'わが校 定期試験特設スタジオ';
+            const nowD = new Date();
+            const defYear = CFG.schoolYear || String(nowD.getMonth() + 1 >= 4 ? nowD.getFullYear() : nowD.getFullYear() - 1);
+            const exam = CFG.examName || '定期考査';
+            const maxHp = (CFG.raidBoss && CFG.raidBoss.maxHp) || 30000;
+            const appBase = (document.getElementById('gas-app-url')?.value || '').trim() || 'https://kawahara-ryu.github.io/study-kyomu/';
+            return [
+                '/**',
+                ' * テスト前夜の虚無バイト（StudyKYOMU+）',
+                ' * 【GitHub編集ゼロ・誰でも30秒運用】1フォーム単一DB × テスト別公開ランキング × クラス推移分析 × 完全マニュアル同梱',
+                ' * ----------------------------------------------------------------------------',
+                ' * ★特徴1: 1つのGoogleフォームに「テスト名」列付きで蓄積するため、定期考査・冬課題テスト・',
+                ' *         実力テストのすべてを横断して「クラス別・個人別の勉強時間推移」を自動分析！',
+                ' * ★特徴2: 本名が入る「このブック」は先生専用（非公開）のまま、別ファイルで自動生成する',
+                ' *         「【Classroom公開用】二つ名ランキング」だけを閲覧共有するため本名漏洩ゼロ！',
+                ' * ★特徴3: 「⚙️テスト切替＆配布URL」シートの年度・テスト名を書き換えてメニューを押すだけで',
+                ' *         ?cfg=... 付きClassroom配布URLを自動発行！年度が変わると生徒に自動で新クラス変更画面が出ます！',
+                ' * ★特徴4: 「📖 先生用マニュアル（必読）」シートに毎テスト手順・来年度4月やることリスト・Q&Aを自動生成！',
+                ' */',
+                'const DEFAULT_APP_URL = "' + appBase.replace(/"/g, '') + '";',
+                'const DEFAULT_SCHOOL_NAME = "' + school.replace(/"/g, '') + '";',
+                'const DEFAULT_SCHOOL_YEAR = "' + defYear + '";',
+                'const DEFAULT_EXAM_NAME = "' + exam.replace(/"/g, '') + '";',
+                'const SECURITY_SALT = "' + salt.replace(/"/g, '') + '";',
+                'const RAID_BOSS_MAX_HP = ' + maxHp + ';',
+                '',
+                '// スプレッドシートを開くと上部に専用メニューが自動出現！（他の先生でも1クリック操作）',
+                'function onOpen() {',
+                '  SpreadsheetApp.getUi()',
+                '    .createMenu("🏪 虚無バイト管理")',
+                '    .addItem("🚀 1. 初回セットアップ（フォーム＆公開ランキング＆マニュアル作成）", "setupKyomuStudySystem")',
+                '    .addItem("🔄 2. テスト切替＆Classroom配布URLを再発行", "refreshExamAndUrls")',
+                '    .addItem("📊 3. 今すぐランキング＆推移分析を再集計", "rebuildRankings")',
+                '    .addSeparator()',
+                '    .addItem("📖 4. 先生用マニュアルシートを作成・最新化", "rebuildManualSheetOnly")',
+                '    .addToUi();',
+                '}',
+                '',
+                'function rebuildManualSheetOnly() {',
+                '  const ss = SpreadsheetApp.getActiveSpreadsheet();',
+                '  ensureManualSheet(ss);',
+                '  try { SpreadsheetApp.getUi().alert("📖 「📖 先生用マニュアル（必読）」シートを作成・最新化しました！"); } catch (e) {}',
+                '}',
+                '',
+                'function setupKyomuStudySystem() {',
+                '  const ss = SpreadsheetApp.getActiveSpreadsheet();',
+                '  const props = PropertiesService.getScriptProperties();',
+                '',
+                '  // 操作用シート＆完全マニュアルシートを先頭に用意',
+                '  ensureControlSheet(ss);',
+                '  ensureManualSheet(ss);',
+                '',
+                '  // 共通Googleフォーム（初回のみ新規作成・既にあれば再利用して単一DBを維持！）',
+                '  let baseUrl = props.getProperty("FORM_PREFILL_BASE_URL") || "";',
+                '  let entryJson = props.getProperty("FORM_ENTRY_JSON") || "";',
+                '  if (!baseUrl || !entryJson) {',
+                '    const form = FormApp.create("【退勤報告】テスト前夜の虚無バイト（全テスト共通）");',
+                '    form.setDescription("アプリから自動入力された内容を確認してそのまま送信してください。本名は先生専用シートのみで管理され、公開ランキングは二つ名のみ表示されます。");',
+                '    form.setCollectEmail(true);',
+                '    try { form.setRequireLogin(true); } catch (e) {}',
+                '',
+                '    const keys = [',
+                '      ["examName", "テスト名（自動入力・変更しないでください）"],',
+                '      ["date", "日付 (YYYY-MM-DD)"],',
+                '      ["className", "クラス"],',
+                '      ["nickname", "二つ名（公開ランキング用）"],',
+                '      ["totalMinutes", "本日合計時間（分）"],',
+                '      ["effectivePoints", "ランキング有効pt"],',
+                '      ["subjectBreakdown", "教科別内訳"],',
+                '      ["dailyReports", "本日の業務日報"],',
+                '      ["streakDays", "連続出勤日数"],',
+                '      ["verifyCode", "改ざん検知コード（編集しないでください）"]',
+                '    ];',
+                '',
+                '    const formResp = form.createResponse();',
+                '    keys.forEach(function(pair) {',
+                '      const it = form.addTextItem().setTitle(pair[1]).setRequired(true);',
+                '      formResp.withItemResponse(it.createResponse("DUMMY_" + pair[0]));',
+                '    });',
+                '',
+                '    const sampleUrl = formResp.toPrefilledUrl();',
+                '    baseUrl = sampleUrl.split("?")[0];',
+                '    const entryMap = {};',
+                '    const matches = sampleUrl.match(/entry\\.\\d+=DUMMY_[a-zA-Z]+/g) || [];',
+                '    matches.forEach(function(m) {',
+                '      const parts = m.split("=");',
+                '      const k = parts[1].replace("DUMMY_", "");',
+                '      entryMap[k] = parts[0];',
+                '    });',
+                '    entryJson = JSON.stringify(entryMap);',
+                '    form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());',
+                '    props.setProperty("FORM_PREFILL_BASE_URL", baseUrl);',
+                '    props.setProperty("FORM_ENTRY_JSON", entryJson);',
+                '  }',
+                '',
+                '  // 別ファイル「【Classroom公開用】二つ名ランキング」ブック作成（本名・メール完全ゼロ！）',
+                '  const ctrl = ensureControlSheet(ss);',
+                '  const yrLabel = String(ctrl.getRange("B3").getValue() || DEFAULT_SCHOOL_YEAR).trim();',
+                '  let pubSS = null;',
+                '  const savedPubId = props.getProperty("PUBLIC_RANKING_SS_ID");',
+                '  if (savedPubId) {',
+                '    try { pubSS = SpreadsheetApp.openById(savedPubId); } catch (e) { pubSS = null; }',
+                '  }',
+                '  if (!pubSS) {',
+                '    pubSS = SpreadsheetApp.create("【Classroom公開用】" + yrLabel + "年度_二つ名ランキング（本名なし）");',
+                '    props.setProperty("PUBLIC_RANKING_SS_ID", pubSS.getId());',
+                '    const firstSh = pubSS.getSheets()[0];',
+                '    if (firstSh) firstSh.setName("全体_二つ名ランキング");',
+                '  }',
+                '  ensureSheet(pubSS, "全体_二つ名ランキング", ["順位","クラス","二つ名","累計pt","本日pt","連続日数"]);',
+                '  ensureSheet(pubSS, "1年_二つ名ランキング", ["順位","クラス","二つ名","累計pt","本日pt","連続日数"]);',
+                '  ensureSheet(pubSS, "2年_二つ名ランキング", ["順位","クラス","二つ名","累計pt","本日pt","連続日数"]);',
+                '  ensureSheet(pubSS, "3年_二つ名ランキング", ["順位","クラス","二つ名","累計pt","本日pt","連続日数"]);',
+                '  ensureSheet(pubSS, "クラス対抗＆レイドボス", ["項目","値","補足"]);',
+                '  ensureSheet(pubSS, "クラス別_テスト推移(匿名)", ["クラス"]);',
+                '',
+                '  // 先生専用（非公開）の分析シートを初期化',
+                '  ensureSheet(ss, "先生用_本名監査ログ", ["タイムスタンプ","テスト名","学校メール","判定","日付","クラス","二つ名","合計分","有効pt","連続日数","教科内訳","業務日報"]);',
+                '  ensureSheet(ss, "先生用_クラス別テスト推移", ["クラス"]);',
+                '  ensureSheet(ss, "先生用_個人別テスト推移", ["学校メール(本名)","クラス","最新二つ名"]);',
+                '',
+                '  // フォーム送信時の自動集計トリガーを登録',
+                '  ScriptApp.getProjectTriggers().forEach(function(t) {',
+                '    if (t.getHandlerFunction() === "rebuildRankings") ScriptApp.deleteTrigger(t);',
+                '  });',
+                '  ScriptApp.newTrigger("rebuildRankings").forSpreadsheet(ss).onFormSubmit().create();',
+                '',
+                '  refreshExamAndUrls();',
+                '  try {',
+                '    SpreadsheetApp.getUi().alert("✅ セットアップ完了！\\n1. 「⚙️テスト切替＆配布URL」の B10（公開ランキングURL）を開いて閲覧共有にしてください。\\n2. B9（生徒用URL）と B10 をClassroomへ貼れば完了！\\n※迷ったときは「📖 先生用マニュアル（必読）」タブをご覧ください。");',
+                '  } catch (e) {}',
+                '}',
+                '',
+                'function ensureControlSheet(ss) {',
+                '  let ctrl = ss.getSheetByName("⚙️テスト切替＆配布URL");',
+                '  if (!ctrl) {',
+                '    ctrl = ss.insertSheet("⚙️テスト切替＆配布URL", 0);',
+                '    ctrl.getRange("A1:C1").setValues([["項目", "設定値（ここを編集）", "説明"]]);',
+                '    ctrl.getRange("A2:C7").setValues([',
+                '      ["公開アプリのURL", DEFAULT_APP_URL, "1回入力したら変更不要（末尾 / または index.html）"],',
+                '      ["★ 年度（4桁）", DEFAULT_SCHOOL_YEAR, "新年度4月に変更（例: 2027）→生徒に自動で進級クラス変更画面が出ます！"],',
+                '      ["★ 現在のテスト名", DEFAULT_EXAM_NAME, "例: 1学期中間考査 / 冬課題テスト / 1月実力テスト"],',
+                '      ["★ 試験開始日", "", "YYYY-MM-DD 形式（例: 2027-01-08・空欄もOK）"],',
+                '      ["二つ名の自由入力", "許可", "「許可」または「ガチャのみ」"],',
+                '      ["学校名・タイトル", DEFAULT_SCHOOL_NAME, "PDFレシート上部に表示"]' ,
+                '    ]);',
+                '    ctrl.getRange("A8:C12").setValues([',
+                '      ["--- 自動発行エリア ---", "（上部メニュー『🔄 2. テスト切替＆URL再発行』で自動更新）", ""],',
+                '      ["★ Classroom配布用アプリURL", "", "これを学年・クラスのClassroomに貼るだけ！（GitHub編集不要）"],',
+                '      ["★ Classroom公開用ランキングURL", "", "別ファイル・本名ゼロ！閲覧共有にしてClassroomに貼る"],',
+                '      ["GoogleフォームURL（確認用）", "", "生徒はアプリから自動で開きます"],',
+                '      ["改ざん検知ソルト", SECURITY_SALT, "変更不要"]' ,
+                '    ]);',
+                '    ctrl.setColumnWidth(1, 250);',
+                '    ctrl.setColumnWidth(2, 470);',
+                '    ctrl.setColumnWidth(3, 400);',
+                '    ctrl.getRange("A1:C1").setFontWeight("bold").setBackground("#E0F2FE");',
+                '    ctrl.getRange("A3:B5").setBackground("#FEF9C3").setFontWeight("bold");',
+                '    ctrl.getRange("A9:B10").setBackground("#DCFCE7").setFontWeight("bold");',
+                '  }',
+                '  return ctrl;',
+                '}',
+                '',
+                '// ★迷わず運用できる「📖 先生用マニュアル（必読）」シートを自動生成（来年度やることリスト＆Q&A＆コピペ例文つき）',
+                'function ensureManualSheet(ss) {',
+                '  let sh = ss.getSheetByName("📖 先生用マニュアル（必読）");',
+                '  if (!sh) sh = ss.insertSheet("📖 先生用マニュアル（必読）", 1);',
+                '  sh.clear();',
+                '  const rows = [',
+                '    ["📖 テスト前夜の虚無バイト — 先生用かんたん運用マニュアル", "", ""],',
+                '    ["※このシートさえ見れば、初めて担当する先生でもGitHub操作ゼロで全運用・年度切替ができます！", "", ""],',
+                '    ["", "", ""],',
+                '    ["■ 1. 全体のしくみ（個人情報・本名漏洩ゼロ設計）", "", ""],',
+                '    ["シート / ファイル名", "公開範囲", "役割"],',
+                '    ["このブック（先生用スプレッドシート）", "🔒 先生のみ（絶対非公開）", "生徒の学校メール（本名）・業務日報・改ざん検知・テスト別推移分析を管理します。"],',
+                '    ["別ファイル『【Classroom公開用】二つ名ランキング』", "📢 校内リンク閲覧可", "本名・メールは一切入りません。現在テストの全体/1年/2年/3年二つ名ランキング＆クラス推移を自動表示。"],',
+                '    ["生徒用Webアプリ（GitHub Pages）", "🌐 生徒が利用", "一度公開すれば二度と編集不要！配布URL（?cfg=...）を踏むだけで今回のテストとフォームへ自動接続します。"],',
+                '    ["", "", ""],',
+                '    ["■ 2. 毎回のテスト前の準備（所要10秒：定期考査・冬課題テスト・実力テストすべて共通）", "", ""],',
+                '    ["手順", "やること", "詳細"],',
+                '    ["Step 1", "テスト名と試験日を入力", "『⚙️テスト切替＆配布URL』シートの B4（テスト名）と B5（試験開始日）を書き換えます。"],',
+                '    ["Step 2", "上部メニューを1クリック", "上部メニュー『🏪 虚無バイト管理 → 🔄 2. テスト切替＆Classroom配布URLを再発行』をクリックします。"],',
+                '    ["Step 3", "ClassroomへURLを貼る", "B9（生徒用配布URL）と B10（公開ランキングURL）を学年・クラスのClassroomへ貼れば完了！"],',
+                '    ["※補足", "公開ランキングも自動切替", "公開ブックは自動で新しいテスト分だけのランキングに切り替わり、過去テストは推移シートに蓄積されます。"],',
+                '    ["", "", ""],',
+                '    ["■ 3. 🌸 来年度（新年度4月・進級＆クラス替え）のやることリスト（所要2分）", "", ""],',
+                '    ["チェック", "手順", "具体的なやり方（クラス替えで前年と混ざるのを防ぐため、シートだけ年度ごとに新しくします）"],',
+                '    ["□ 1", "前年度シートを保管", "今年度のこのブックの名前を『2026年度_虚無バイト記録（保管用）』に変更してそのまま残します。"],',
+                '    ["□ 2", "新年度用シートを新規作成", "Googleドライブで新しい空のスプレッドシート（例:『2027年度_虚無バイト管理』）を作り、拡張機能→Apps ScriptにこのGASコードを丸ごとコピペして保存→ページ再読み込み。"],',
+                '    ["□ 3", "年度とテスト名を入力", "『⚙️テスト切替＆配布URL』の B2（アプリURL）はそのまま、B3（年度:例 2027）・B4（例: 2027 1学期中間考査）・B5（試験日）を入力。"],',
+                '    ["□ 4", "初回セットアップを実行", "上部メニュー『🏪 虚無バイト管理 → 🚀 1. 初回セットアップ』を1回クリック！新年度専用のフォームと別ファイル公開ランキングブックが自動生成されます。"],',
+                '    ["□ 5", "公開ブックだけ閲覧共有", "B10に出た別ファイル『【Classroom公開用】2027年度_二つ名ランキング』を開き、右上『共有』から『学校ドメイン内のリンクを知っている全員：閲覧者』に設定。（※先生用ブックは絶対に共有しない！）"],',
+                '    ["□ 6", "ClassroomへURLを配布", "B9（新年度配布URL）と B10（新年度公開ランキングURL）を新クラスのClassroomに貼るだけ！生徒が開くと自動で『🌸 新年度クラス変更画面』が出て旧クラス提出ミスを防止します！"],',
+                '    ["", "", ""],',
+                '    ["■ 4. テスト中・テスト後の確認と推移グラフの作り方", "", ""],',
+                '    ["見たいもの", "開くシート", "活用方法"],',
+                '    ["誰が何分やったか確認", "先生用_本名監査ログ", "学校メール（本名）・日付・合計分・日報・改ざん判定を一覧確認。Classroom提出PDFと併用できます。"],',
+                '    ["クラス別の推移グラフ", "先生用_クラス別テスト推移", "表全体を選択 → 上部メニュー『挿入 → グラフ』で、各クラスの1学期中間→冬課題→期末などの平均勉強時間推移グラフが一瞬で完成！"],',
+                '    ["個人別の成長推移", "先生用_個人別テスト推移", "本名メールごとに全テストの合計勉強時間が横並びで比較でき、個別面談や声かけに最適です。"],',
+                '    ["", "", ""],',
+                '    ["■ 5. 📢 Classroom投稿用・生徒アナウンス例文（そのままコピペOK）", "", ""],',
+                '    ["通常テスト用", "【テスト勉強記録アプリ】今回のテスト用リンクです！スマホ・ChromebookどちらでもOK。\\n▼ アプリを開く：＜ここに B9 のURL＞\\n▼ 二つ名ランキング（本名なし）：＜ここに B10 のURL＞\\n※毎日の勉強が終わったら「退勤・PDF」から ①Googleフォーム送信 ②超軽量PDFをこの課題に提出してね！", ""],',
+                '    ["新年度4月用", "【新年度テスト勉強記録アプリ】進級おめでとう！今年度も学習記録アプリを使います。\\n下のリンクを開くと自動で『新年度のクラス選択画面』が出るので、新しいクラスを選んでスタートしてね！（去年のガチャ図鑑はそのまま引き継がれます）\\n▼ アプリを開く：＜ここに B9 のURL＞\\n▼ 二つ名ランキング：＜ここに B10 のURL＞", ""],',
+                '    ["", "", ""],',
+                '    ["■ 6. 🚨 トラブルシューティング Q&A", "", ""],',
+                '    ["よくある困りごと", "解決方法", ""],',
+                '    ["Q. 上部メニュー『🏪 虚無バイト管理』が出ない", "スプレッドシートを再読み込み（F5）して5秒ほど待つと表示されます。", ""],',
+                '    ["Q. 初回実行時に『Googleで確認されていません』と出た", "自作スクリプトの標準確認です。『詳細』→『（プロジェクト名）に移動』→『許可』で進めてください。", ""],',
+                '    ["Q. 生徒が『公開ランキングが見られない』と言う", "別ファイルの『【Classroom公開用】二つ名ランキング』の右上『共有』が制限付きのままです。校内リンク閲覧可にしてください。", ""],',
+                '    ["Q. 『要確認(改ざん疑い)』の行が出た", "フォーム送信時に生徒が時間やptを手書き修正した可能性があります。Classroom提出PDFと照合してください。", ""],',
+                '    ["Q. 生徒が学校PCと自宅スマホ両方を使った", "設定・引継タブの『📷 引き継ぎQRコード』で合体してから退勤フォームを送れば1日分が自動で合算されます。", ""],',
+                '    ["Q. クラス数が9組以上に増えた", "その場合のみGitHub上の config.js の classes 配列へ \'1-9\' 等を追加してください（1〜8組のままなら変更不要）。", ""],',
+                '    ["", "", ""],',
+                '    ["■ 7. 🏫 担当者の異動時（前の学校への引き継ぎ ＆ 異動先の学校で新しく使う方法）", "", ""],',
+                '    ["ケース", "具体的な手順・注意点（同じGitHub URLのまま何校でもデータ完全分離で運用OK！）", ""],',
+                '    ["前の学校(A校)への引き継ぎ", "異動後に前任者のA校Googleアカウントが削除されるとシートやトリガーが止まります。異動前に【A校の後任の先生のアカウント】で新年度シートを新規作成（またはコピー）し、上部メニュー『🚀 1. 初回セットアップ』を1回押してもらうだけで、フォーム・公開ランキング・自動集計が完全にA校へ引き継がれます！（※GitHubリポジトリ自体は消さず公開のまま残してください）", ""],',
+                '    ["異動先の学校(B校)で新規利用", "GitHub操作ゼロ・所要2分！ ①B校のGoogleアカウントで空のスプレッドシートを作成し、このGASコードを貼って保存→リロード ②『⚙️テスト切替＆配布URL』の B2（今と同じGitHubアプリURL）・B7（B校の学校名）を入力 ③『🚀 1. 初回セットアップ』を1回クリック！ → B校のGoogleドライブ内にB校専用のフォーム＆公開ランキング＆配布URLが完成し、A校とは1件も混ざらず独立運用できます！", ""],',
+                '    ["", "", ""],',
+                '    ["■ 8. 🔑 校内引き継ぎメモ（担当交代時のため記入しておくと安心）", "", ""],',
+                '    ["GitHub管理アカウント / 担当部署", "（例：情報科共有アカウント / ○○先生）", ""],',
+                '    ["生徒用アプリ公開URL", DEFAULT_APP_URL, ""],',
+                '    ["過去年度シートの保管フォルダ", "（例：Googleドライブ > 共有ドライブ > 定期試験学習記録）", ""]',
+                '  ];',
+                '  sh.getRange(1, 1, rows.length, 3).setValues(rows);',
+                '  sh.setColumnWidth(1, 270);',
+                '  sh.setColumnWidth(2, 460);',
+                '  sh.setColumnWidth(3, 460);',
+                '  sh.getRange(1, 1, rows.length, 3).setWrap(true).setVerticalAlignment("top");',
+                '  sh.getRange("A1:C1").merge().setFontSize(14).setFontWeight("bold").setBackground("#0F172A").setFontColor("#FFFFFF");',
+                '  sh.getRange("A2:C2").merge().setBackground("#E0F2FE").setFontWeight("bold");',
+                '  const headerLabels = ["シート / ファイル名", "手順", "チェック", "見たいもの", "よくある困りごと", "ケース"];',
+                '  for (let i = 2; i < rows.length; i++) {',
+                '    const rNum = i + 1;',
+                '    const c0 = String(rows[i][0] || "");',
+                '    const c1 = String(rows[i][1] || "");',
+                '    const c2 = String(rows[i][2] || "");',
+                '    if (c0.indexOf("■ ") === 0) {',
+                '      sh.getRange(rNum, 1, 1, 3).merge().setBackground("#FEF3C7").setFontWeight("bold").setFontSize(11);',
+                '    } else if (headerLabels.indexOf(c0) !== -1) {',
+                '      sh.getRange(rNum, 1, 1, 3).setBackground("#F1F5F9").setFontWeight("bold");',
+                '      if (!c2) sh.getRange(rNum, 2, 1, 2).merge();',
+                '    } else if (c0 && c1 && !c2) {',
+                '      sh.getRange(rNum, 2, 1, 2).merge();',
+                '    }',
+                '  }',
+                '  return sh;',
+                '}',
+                '',
+                '// ★冬課題テスト・次回定期テスト・新年度へ切り替えるときはこの関数（メニュー2番）を1回押すだけ！',
+                'function refreshExamAndUrls() {',
+                '  const ss = SpreadsheetApp.getActiveSpreadsheet();',
+                '  const props = PropertiesService.getScriptProperties();',
+                '  const ctrl = ensureControlSheet(ss);',
+                '',
+                '  let appUrl = String(ctrl.getRange("B2").getValue() || DEFAULT_APP_URL).trim();',
+                '  const schoolYear = String(ctrl.getRange("B3").getValue() || DEFAULT_SCHOOL_YEAR).trim();',
+                '  const examName = String(ctrl.getRange("B4").getValue() || DEFAULT_EXAM_NAME).trim();',
+                '  const rawDate = ctrl.getRange("B5").getValue();',
+                '  let examDate = "";',
+                '  if (rawDate instanceof Date) {',
+                '    examDate = Utilities.formatDate(rawDate, "Asia/Tokyo", "yyyy-MM-dd");',
+                '  } else if (rawDate) {',
+                '    examDate = String(rawDate).trim();',
+                '  }',
+                '  const freeNick = String(ctrl.getRange("B6").getValue() || "許可").trim() !== "ガチャのみ" ? 1 : 0;',
+                '  const schoolName = String(ctrl.getRange("B7").getValue() || DEFAULT_SCHOOL_NAME).trim();',
+                '',
+                '  const formBaseUrl = props.getProperty("FORM_PREFILL_BASE_URL") || "";',
+                '  const entryMap = JSON.parse(props.getProperty("FORM_ENTRY_JSON") || "{}");',
+                '  const pubId = props.getProperty("PUBLIC_RANKING_SS_ID") || "";',
+                '  let pubUrl = "";',
+                '  if (pubId) {',
+                '    try { pubUrl = SpreadsheetApp.openById(pubId).getUrl(); } catch (e) {}',
+                '  }',
+                '',
+                '  const keyOrder = ["examName","date","className","nickname","totalMinutes","effectivePoints","subjectBreakdown","dailyReports","streakDays","verifyCode"];',
+                '  const compactEntries = keyOrder.map(function(k) { return String(entryMap[k] || "").replace("entry.", ""); });',
+                '',
+                '  const cfgPayload = {',
+                '    v: 1,',
+                '    sn: schoolName,',
+                '    yr: schoolYear,',
+                '    ex: examName,',
+                '    dt: examDate,',
+                '    fu: formBaseUrl,',
+                '    en: compactEntries,',
+                '    bu: pubUrl,',
+                '    sa: SECURITY_SALT,',
+                '    fn: freeNick',
+                '  };',
+                '  const cfgB64 = Utilities.base64EncodeWebSafe(Utilities.newBlob(JSON.stringify(cfgPayload)).getBytes()).replace(/=+$/, "");',
+                '  const sep = appUrl.indexOf("?") === -1 ? "?" : "&";',
+                '  const distUrl = appUrl + sep + "cfg=" + cfgB64;',
+                '',
+                '  ctrl.getRange("B9").setValue(distUrl);',
+                '  ctrl.getRange("B10").setValue(pubUrl);',
+                '  ctrl.getRange("B11").setValue(formBaseUrl);',
+                '',
+                '  // 公開ランキングも新しいテスト名専用へ即切替！',
+                '  rebuildRankings();',
+                '}',
+                '',
+                'function ensureSheet(ss, name, headers) {',
+                '  let sh = ss.getSheetByName(name);',
+                '  if (!sh) sh = ss.insertSheet(name);',
+                '  if (sh.getLastRow() === 0 && headers && headers.length) sh.appendRow(headers);',
+                '  return sh;',
+                '}',
+                '',
+                'function verifyChecksumGas(dateStr, cls, nick, totalMin, effPt) {',
+                '  const raw = dateStr + "|" + cls + "|" + nick + "|" + totalMin + "|" + effPt + "|" + SECURITY_SALT;',
+                '  let hash = 2166136261;',
+                '  for (let i = 0; i < raw.length; i++) {',
+                '    hash ^= raw.charCodeAt(i);',
+                '    hash = Math.imul(hash, 16777619) >>> 0;',
+                '  }',
+                '  return hash.toString(16).toUpperCase().padStart(8, "0").slice(0, 6);',
+                '}',
+                '',
+                'function writeRankSheet(pubSS, sheetName, titleLine, list) {',
+                '  const sh = ensureSheet(pubSS, sheetName, []);',
+                '  sh.clear();',
+                '  sh.appendRow([titleLine, "更新: " + Utilities.formatDate(new Date(), "Asia/Tokyo", "MM/dd HH:mm"), "", "", "", ""]);',
+                '  sh.appendRow(["順位","クラス","二つ名","累計pt","本日pt","連続日数"]);',
+                '  const rows = list.map(function(s, idx) {',
+                '    return [idx + 1, s.cls + "組", s.nick, s.totalPt, s.todayPt, s.streak + "日"];',
+                '  });',
+                '  if (rows.length) sh.getRange(3, 1, rows.length, 6).setValues(rows);',
+                '}',
+                '',
+                'function rebuildRankings() {',
+                '  const ss = SpreadsheetApp.getActiveSpreadsheet();',
+                '  const ctrl = ss.getSheetByName("⚙️テスト切替＆配布URL");',
+                '  const activeExam = ctrl ? String(ctrl.getRange("B4").getValue() || DEFAULT_EXAM_NAME).trim() : DEFAULT_EXAM_NAME;',
+                '  const respSheet = ss.getSheets().find(function(s) { return s.getName().indexOf("フォームの回答") !== -1; });',
+                '  const todayStr = Utilities.formatDate(new Date(), "Asia/Tokyo", "yyyy-MM-dd");',
+                '',
+                '  const auditRows = [];',
+                '  const examStudentDayMap = {};',
+                '  const examOrder = [];',
+                '  const pushExam = function(ex) { if (ex && examOrder.indexOf(ex) === -1) examOrder.push(ex); };',
+                '  pushExam(activeExam);',
+                '',
+                '  if (respSheet && respSheet.getLastRow() >= 2) {',
+                '    const values = respSheet.getDataRange().getValues();',
+                '    const hdr = values[0].map(function(h) { return String(h || ""); });',
+                '    const hasExamCol = hdr.length >= 12 && hdr[2].indexOf("テスト名") !== -1;',
+                '    const off = hasExamCol ? 1 : 0;',
+                '',
+                '    for (let i = 1; i < values.length; i++) {',
+                '      const r = values[i];',
+                '      const ts = r[0];',
+                '      const email = String(r[1] || "");',
+                '      const examName = hasExamCol ? (String(r[2] || "").trim() || activeExam) : activeExam;',
+                '      const dateStr = String(r[2 + off] || "").trim();',
+                '      const cls = String(r[3 + off] || "").trim();',
+                '      const nick = String(r[4 + off] || "").trim();',
+                '      const mins = parseInt(r[5 + off], 10) || 0;',
+                '      const pts = parseInt(r[6 + off], 10) || 0;',
+                '      const breakdown = String(r[7 + off] || "");',
+                '      const reports = String(r[8 + off] || "");',
+                '      const streak = parseInt(r[9 + off], 10) || 0;',
+                '      const code = String(r[10 + off] || "").trim();',
+                '',
+                '      const chkMatch = code.match(/CHK:([0-9A-F]{6})/);',
+                '      const expected = verifyChecksumGas(dateStr, cls, nick, mins, pts);',
+                '      const isValid = Boolean(chkMatch && chkMatch[1] === expected);',
+                '      auditRows.push([ts, examName, email, isValid ? "OK" : "要確認(改ざん疑い)", dateStr, cls, nick, mins, pts, streak, breakdown, reports]);',
+                '',
+                '      if (!isValid) continue;',
+                '      pushExam(examName);',
+                '      const sid = email || (cls + "|" + nick);',
+                '      const dk = examName + "||" + sid + "||" + dateStr;',
+                '      if (!examStudentDayMap[dk] || pts >= examStudentDayMap[dk].pts) {',
+                '        examStudentDayMap[dk] = { exam: examName, sid: sid, email: email, dateStr: dateStr, cls: cls, nick: nick, mins: mins, pts: pts, streak: streak };',
+                '      }',
+                '    }',
+                '  }',
+                '',
+                '  const auditSh = ensureSheet(ss, "先生用_本名監査ログ", []);',
+                '  auditSh.clear();',
+                '  auditSh.appendRow(["タイムスタンプ","テスト名","学校メール","判定","日付","クラス","二つ名","合計分","有効pt","連続日数","教科内訳","業務日報"]);',
+                '  if (auditRows.length) auditSh.getRange(2, 1, auditRows.length, 12).setValues(auditRows);',
+                '',
+                '  const byExamStudent = {};',
+                '  const studentProfile = {};',
+                '  const allClassesSet = {};',
+                '  Object.keys(examStudentDayMap).forEach(function(k) {',
+                '    const d = examStudentDayMap[k];',
+                '    const ek = d.exam + "||" + d.sid;',
+                '    if (!byExamStudent[ek]) {',
+                '      byExamStudent[ek] = { exam: d.exam, sid: d.sid, cls: d.cls, nick: d.nick, totalMin: 0, totalPt: 0, todayPt: 0, streak: 0 };',
+                '    }',
+                '    const st = byExamStudent[ek];',
+                '    st.cls = d.cls;',
+                '    st.nick = d.nick;',
+                '    st.totalMin += d.mins;',
+                '    st.totalPt += d.pts;',
+                '    if (d.dateStr === todayStr) st.todayPt += d.pts;',
+                '    if (d.streak > st.streak) st.streak = d.streak;',
+                '    studentProfile[d.sid] = { email: d.email || d.sid, cls: d.cls, nick: d.nick };',
+                '    if (d.cls) allClassesSet[d.cls] = true;',
+                '  });',
+                '',
+                '  const classList = Object.keys(allClassesSet).sort();',
+                '  const classTrendHeader = ["クラス"].concat(examOrder.map(function(ex) { return ex + "(平均分)"; })).concat(["現在テスト参加人数"]);',
+                '  const classTrendRows = classList.map(function(cls) {',
+                '    const row = [cls + "組"];',
+                '    let activeCnt = 0;',
+                '    examOrder.forEach(function(ex) {',
+                '      let sumM = 0, cnt = 0;',
+                '      Object.values(byExamStudent).forEach(function(st) {',
+                '        if (st.exam === ex && st.cls === cls) { sumM += st.totalMin; cnt++; }',
+                '      });',
+                '      if (ex === activeExam) activeCnt = cnt;',
+                '      row.push(cnt ? Math.round(sumM / cnt) : 0);',
+                '    });',
+                '    row.push(activeCnt);',
+                '    return row;',
+                '  });',
+                '  const clsTrendSh = ensureSheet(ss, "先生用_クラス別テスト推移", []);',
+                '  clsTrendSh.clear();',
+                '  clsTrendSh.appendRow(classTrendHeader);',
+                '  if (classTrendRows.length) clsTrendSh.getRange(2, 1, classTrendRows.length, classTrendHeader.length).setValues(classTrendRows);',
+                '',
+                '  const indTrendHeader = ["学校メール(本名)","クラス","最新二つ名"].concat(examOrder.map(function(ex) { return ex + "(合計分)"; }));',
+                '  const indTrendRows = Object.keys(studentProfile).sort().map(function(sid) {',
+                '    const pf = studentProfile[sid];',
+                '    const row = [pf.email, pf.cls + "組", pf.nick];',
+                '    examOrder.forEach(function(ex) {',
+                '      const st = byExamStudent[ex + "||" + sid];',
+                '      row.push(st ? st.totalMin : 0);',
+                '    });',
+                '    return row;',
+                '  });',
+                '  const indTrendSh = ensureSheet(ss, "先生用_個人別テスト推移", []);',
+                '  indTrendSh.clear();',
+                '  indTrendSh.appendRow(indTrendHeader);',
+                '  if (indTrendRows.length) indTrendSh.getRange(2, 1, indTrendRows.length, indTrendHeader.length).setValues(indTrendRows);',
+                '',
+                '  const pubId = PropertiesService.getScriptProperties().getProperty("PUBLIC_RANKING_SS_ID");',
+                '  if (!pubId) return;',
+                '  const pubSS = SpreadsheetApp.openById(pubId);',
+                '',
+                '  const activeList = Object.values(byExamStudent)',
+                '    .filter(function(st) { return st.exam === activeExam; })',
+                '    .sort(function(a, b) { return b.totalPt - a.totalPt; });',
+                '',
+                '  writeRankSheet(pubSS, "全体_二つ名ランキング", "🏆 【" + activeExam + "】全体・二つ名ランキング", activeList);',
+                '  writeRankSheet(pubSS, "1年_二つ名ランキング", "🏆 【" + activeExam + "】1学年・二つ名ランキング", activeList.filter(function(s) { return s.cls.indexOf("1-") === 0; }));',
+                '  writeRankSheet(pubSS, "2年_二つ名ランキング", "🏆 【" + activeExam + "】2学年・二つ名ランキング", activeList.filter(function(s) { return s.cls.indexOf("2-") === 0; }));',
+                '  writeRankSheet(pubSS, "3年_二つ名ランキング", "🏆 【" + activeExam + "】3学年・二つ名ランキング", activeList.filter(function(s) { return s.cls.indexOf("3-") === 0; }));',
+                '',
+                '  const clsMap = {};',
+                '  let grandTotal = 0;',
+                '  activeList.forEach(function(s) {',
+                '    grandTotal += s.totalPt;',
+                '    if (!clsMap[s.cls]) clsMap[s.cls] = { cls: s.cls, sum: 0, cnt: 0 };',
+                '    clsMap[s.cls].sum += s.totalPt;',
+                '    clsMap[s.cls].cnt += 1;',
+                '  });',
+                '  const clsRows = Object.values(clsMap)',
+                '    .map(function(c) { return [c.cls + "組", Math.round(c.sum / Math.max(1, c.cnt)), "参加" + c.cnt + "名 / 合計" + c.sum + "pt"]; })',
+                '    .sort(function(a, b) { return b[1] - a[1]; });',
+                '',
+                '  const raidSh = ensureSheet(pubSS, "クラス対抗＆レイドボス", []);',
+                '  raidSh.clear();',
+                '  raidSh.appendRow(["⚔️ 【" + activeExam + "】クラス対抗＆全校レイド", "値", "補足"]);',
+                '  raidSh.appendRow(["全校レイドボス残りHP", Math.max(0, RAID_BOSS_MAX_HP - grandTotal), "最大HP " + RAID_BOSS_MAX_HP + " / 総ダメージ " + grandTotal + "pt"]);',
+                '  raidSh.appendRow(["--- クラス対抗(1人平均pt) ---", "平均pt", "内訳"]);',
+                '  if (clsRows.length) raidSh.getRange(4, 1, clsRows.length, 3).setValues(clsRows);',
+                '',
+                '  const pubTrendSh = ensureSheet(pubSS, "クラス別_テスト推移(匿名)", []);',
+                '  pubTrendSh.clear();',
+                '  pubTrendSh.appendRow(classTrendHeader);',
+                '  if (classTrendRows.length) pubTrendSh.getRange(2, 1, classTrendRows.length, classTrendHeader.length).setValues(classTrendRows);',
+                '}'
+            ].join('\n');
+        }
+
+        // 提出コード一括パース＆改ざん検証
+        function runAggregation() {
+            const raw = document.getElementById('agg-input')?.value || '';
+            const matches = raw.match(/KYM1\|[^\r\n]+/g) || [];
+            if (!matches.length) {
+                alert('KYM1|... 形式の提出コードが見つかりませんでした。まずは「サンプル提出データを読み込む」を試してみてください！');
+                return;
+            }
+
+            const auditList = [];
+            const studentMap = {};
+
+            matches.forEach(line => {
+                const parts = line.trim().split('|');
+                if (parts.length < 9) return;
+                const [, dateStr, cls, nick, minStr, ptStr, streakStr, breakdown, chkPart] = parts;
+                const mins = parseInt(minStr, 10) || 0;
+                const pts = parseInt(ptStr, 10) || 0;
+                const streak = parseInt(streakStr, 10) || 0;
+                const givenChk = (chkPart || '').replace('CHK:', '').trim();
+                const expectedChk = computeVerifyChecksum(dateStr, cls, nick, mins, pts, CFG.securitySalt);
+                const valid = givenChk === expectedChk;
+
+                auditList.push({ valid, dateStr, cls, nick, mins, pts, streak, breakdown, givenChk, expectedChk });
+                if (!valid) return;
+
+                const key = cls + '||' + nick;
+                if (!studentMap[key]) {
+                    studentMap[key] = { cls, nick, totalMin: 0, totalPt: 0, streak: 0, days: {} };
+                }
+                const st = studentMap[key];
+                // 同日の複数提出（学校＋自宅）は最大値/合算として重複カウント防止
+                if (!st.days[dateStr] || pts > st.days[dateStr].pts) {
+                    st.days[dateStr] = { mins, pts };
+                }
+                if (streak > st.streak) st.streak = streak;
+            });
+
+            const students = Object.values(studentMap).map(st => {
+                const vals = Object.values(st.days);
+                st.totalMin = vals.reduce((a, x) => a + x.mins, 0);
+                st.totalPt = vals.reduce((a, x) => a + x.pts, 0);
+                return st;
+            }).sort((a, b) => b.totalPt - a.totalPt);
+
+            const clsMap = {};
+            let totalDamage = 0;
+            students.forEach(s => {
+                totalDamage += s.totalPt;
+                if (!clsMap[s.cls]) clsMap[s.cls] = { cls: s.cls, sum: 0, cnt: 0 };
+                clsMap[s.cls].sum += s.totalPt;
+                clsMap[s.cls].cnt += 1;
+            });
+            const clsRanked = Object.values(clsMap)
+                .map(c => ({ ...c, avg: Math.round(c.sum / Math.max(1, c.cnt)) }))
+                .sort((a, b) => b.avg - a.avg);
+
+            const ngCount = auditList.filter(a => !a.valid).length;
+            const resEl = document.getElementById('agg-results');
+            if (resEl) resEl.style.display = 'block';
+
+            const kpiEl = document.getElementById('agg-kpis');
+            if (kpiEl) {
+                kpiEl.innerHTML = [
+                    ['読込レコード', auditList.length + '件'],
+                    ['有効参加者', students.length + '名'],
+                    ['全校総ダメージ', totalDamage.toLocaleString() + ' pt'],
+                    ['改ざん検知', ngCount + '件']
+                ].map(([l, v]) => '<div class="kpi-box"><span>' + l + '</span><strong>' + v + '</strong></div>').join('');
+            }
+
+            const maxHp = (CFG.raidBoss && CFG.raidBoss.maxHp) || 30000;
+            const remHp = Math.max(0, maxHp - totalDamage);
+            const bossTxt = document.getElementById('agg-boss-hp-text');
+            const bossBar = document.getElementById('agg-boss-bar');
+            if (bossTxt) bossTxt.textContent = '残りHP: ' + remHp.toLocaleString() + ' / ' + maxHp.toLocaleString() + '（総ダメージ ' + totalDamage.toLocaleString() + ' pt）';
+            if (bossBar) bossBar.style.width = Math.max(0, Math.min(100, (remHp / maxHp) * 100)).toFixed(1) + '%';
+
+            const clsBody = document.querySelector('#tbl-class-rank tbody');
+            if (clsBody) {
+                clsBody.innerHTML = clsRanked.map((c, i) =>
+                    '<tr><td>' + (i === 0 ? '👑 1位' : (i + 1) + '位') + '</td><td><strong>' + escapeHtml(c.cls) + '組</strong></td><td>' + c.cnt + '名</td><td>' + c.sum + 'pt</td><td><strong>' + c.avg + 'pt</strong></td></tr>'
+                ).join('');
+            }
+
+            const indBody = document.querySelector('#tbl-ind-rank tbody');
+            if (indBody) {
+                indBody.innerHTML = students.map((s, i) =>
+                    '<tr><td>' + (i === 0 ? '👑 1位' : (i + 1) + '位') + '</td><td><strong>' + escapeHtml(s.nick) + '</strong></td><td>' + escapeHtml(s.cls) + '組</td><td>🔥' + s.streak + '日</td><td><strong>' + s.totalPt + 'pt</strong></td></tr>'
+                ).join('');
+            }
+
+            const audBody = document.querySelector('#tbl-audit tbody');
+            if (audBody) {
+                audBody.innerHTML = auditList.map(a =>
+                    '<tr><td>' + (a.valid ? '<span class="ok-pill">✅ 正常</span>' : '<span class="ng-pill">🚨 改ざん疑い</span>') +
+                    '</td><td>' + escapeHtml(a.dateStr) + '</td><td>' + escapeHtml(a.cls) + '</td><td>' + escapeHtml(a.nick) +
+                    '</td><td>' + a.mins + '分</td><td>' + a.pts + 'pt</td><td>' + escapeHtml(a.breakdown) + '</td></tr>'
+                ).join('');
+            }
+        }
+
+        function loadSampleSubmissions() {
+            const d = new Date().toISOString().slice(0, 10);
+            const samples = [
+                { cls: '2-3', nick: '定時退社のチルペンギン', min: 90, pt: 110, st: 6, bd: '数学:50分,英語:40分', tamper: false },
+                { cls: '2-3', nick: '2進数の塩おにぎり', min: 65, pt: 75, st: 5, bd: '情報I:40分,国語:25分', tamper: false },
+                { cls: '2-1', nick: '時給1100円のボクバナナ', min: 75, pt: 85, st: 4, bd: '英語:45分,理科:30分', tamper: false },
+                { cls: '1-2', nick: 'こたつ在住の拒否柴', min: 55, pt: 65, st: 3, bd: '国語:30分,数学:25分', tamper: false },
+                { cls: '3-4', nick: '早寝ガチ勢のたこ焼き', min: 105, pt: 125, st: 7, bd: '地歴公民:60分,英語:45分', tamper: false },
+                { cls: '1-1', nick: '手書き改ざんしたウインナー', min: 999, pt: 999, st: 1, bd: '数学:999分', tamper: true }
+            ];
+            const lines = samples.map(s => {
+                const chk = s.tamper ? 'DEAD00' : computeVerifyChecksum(d, s.cls, s.nick, s.min, s.pt, CFG.securitySalt);
+                return ['KYM1', d, s.cls, s.nick, s.min, s.pt, s.st, s.bd, 'CHK:' + chk].join('|');
+            });
+            const inp = document.getElementById('agg-input');
+            if (inp) inp.value = lines.join('\n');
+            runAggregation();
+        }
+
+        function generateConfigText() {
+            const school = document.getElementById('w-school')?.value.trim() || CFG.schoolName;
+            const schoolYear = document.getElementById('w-year')?.value.trim() || CFG.schoolYear || '';
+            const exam = document.getElementById('w-exam')?.value.trim() || CFG.examName;
+            const examDate = document.getElementById('w-date')?.value.trim() || '';
+            const classes = (document.getElementById('w-classes')?.value || '')
+                .split(',').map(x => x.trim()).filter(Boolean);
+            const allowFree = (document.getElementById('w-freenick')?.value || 'true') === 'true';
+            const salt = document.getElementById('w-salt')?.value.trim() || CFG.securitySalt;
+            const formUrl = document.getElementById('w-form-url')?.value.trim() || '';
+            const boardUrl = document.getElementById('w-board-url')?.value.trim() || '';
+            const csvUrl = document.getElementById('w-csv-url')?.value.trim() || '';
+
+            let entriesObj = CFG.googleForm.entries;
+            const entRaw = document.getElementById('w-entries-json')?.value.trim();
+            if (entRaw) {
+                try { entriesObj = { ...entriesObj, ...JSON.parse(entRaw) }; } catch (e) {}
+            }
+
+            const nextCfg = {
+                ...CFG,
+                schoolName: school,
+                schoolYear: schoolYear,
+                examName: exam,
+                examDate: examDate,
+                classes: classes.length ? classes : CFG.classes,
+                allowFreeNickname: allowFree,
+                securitySalt: salt,
+                googleForm: {
+                    enabled: Boolean(formUrl),
+                    prefillBaseUrl: formUrl,
+                    entries: entriesObj
+                },
+                rankingBoard: {
+                    publicBoardUrl: boardUrl,
+                    publicCsvUrl: csvUrl,
+                    showDemoWhenUnlinked: false
+                }
+            };
+            const out = document.getElementById('cfg-output');
+            if (out) {
+                out.value = 'window.KYOMU_CONFIG = ' + JSON.stringify(nextCfg, null, 4) + ';\n';
+            }
+
+            // 毎回のテストでGitHubもconfig.jsも編集せずClassroomに貼れる ?cfg=... 自動接続URLを生成！
+            const appUrl = (document.getElementById('w-app-url')?.value || '').trim() || 'https://kawahara-ryu.github.io/study-kyomu/';
+            const distEl = document.getElementById('dist-url-output');
+            if (distEl) {
+                if (formUrl || boardUrl || csvUrl || schoolYear) {
+                    const keyOrder = ['examName', 'date', 'className', 'nickname', 'totalMinutes', 'effectivePoints', 'subjectBreakdown', 'dailyReports', 'streakDays', 'verifyCode'];
+                    const compactEntries = keyOrder.map(k => String((entriesObj && entriesObj[k]) || '').replace('entry.', ''));
+                    const cfgPayload = {
+                        v: 1,
+                        sn: school,
+                        yr: schoolYear,
+                        ex: exam,
+                        dt: examDate,
+                        fu: formUrl,
+                        en: compactEntries,
+                        bu: boardUrl,
+                        cu: csvUrl,
+                        sa: salt,
+                        fn: allowFree ? 1 : 0
+                    };
+                    const bytes = new TextEncoder().encode(JSON.stringify(cfgPayload));
+                    let bin = '';
+                    bytes.forEach(b => { bin += String.fromCharCode(b); });
+                    const b64 = btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                    const sep = appUrl.includes('?') ? '&' : '?';
+                    distEl.value = appUrl + sep + 'cfg=' + b64;
+                } else {
+                    const params = new URLSearchParams();
+                    if (exam) params.set('exam', exam);
+                    if (examDate) params.set('date', examDate);
+                    const q = params.toString();
+                    distEl.value = q ? appUrl + '?' + q : appUrl;
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // タブ切替
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+                    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + btn.dataset.t));
+                });
+            });
+
+            // GAS表示＆アプリURL変更でリアルタイム再生成
+            const gasBox = document.getElementById('gas-script-box');
+            const refreshGas = () => { if (gasBox) gasBox.value = buildGasScript(); };
+            refreshGas();
+            document.getElementById('gas-app-url')?.addEventListener('input', refreshGas);
+            document.getElementById('btn-copy-gas')?.addEventListener('click', () => {
+                if (navigator.clipboard && gasBox) navigator.clipboard.writeText(gasBox.value).catch(() => {});
+                const t = document.getElementById('gas-copy-toast');
+                if (t) t.textContent = '✅ GASスクリプトをコピーしました！スプレッドシートのApps Scriptに貼り付けて実行してください！';
+            });
+
+            // 集計
+            document.getElementById('btn-run-agg')?.addEventListener('click', runAggregation);
+            document.getElementById('btn-load-sample')?.addEventListener('click', loadSampleSubmissions);
+            document.getElementById('btn-print-ranking')?.addEventListener('click', () => window.print());
+
+            // ウィザード初期値
+            const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+            const nowD = new Date();
+            const defYr = CFG.schoolYear || String(nowD.getMonth() + 1 >= 4 ? nowD.getFullYear() : nowD.getFullYear() - 1);
+            setVal('w-school', CFG.schoolName);
+            setVal('w-year', defYr);
+            setVal('w-exam', CFG.examName);
+            setVal('w-date', CFG.examDate);
+            setVal('w-classes', CFG.classes.join(', '));
+            setVal('w-freenick', String(CFG.allowFreeNickname));
+            setVal('w-salt', CFG.securitySalt);
+            setVal('w-form-url', CFG.googleForm.prefillBaseUrl);
+            setVal('w-board-url', CFG.rankingBoard.publicBoardUrl);
+            setVal('w-csv-url', CFG.rankingBoard.publicCsvUrl);
+            generateConfigText();
+
+            // マニュアル印刷＆Classroom投稿例文コピー
+            document.getElementById('btn-print-manual')?.addEventListener('click', () => window.print());
+            const postNormal = [
+                '【テスト勉強記録アプリ：テスト前夜の虚無バイト】',
+                '今回のテストに向けた学習時間管理アプリです！スマホでもChromebookでも使えます。',
+                '',
+                '▼ アプリを開く（まずはこのリンクから開いてね！）',
+                '（ここにスプレッドシート B9 の配布URLを貼る）',
+                '',
+                '▼ 公開用・二つ名ランキング表（本名は出ません）',
+                '（ここにスプレッドシート B10 の公開ランキングURLを貼る）',
+                '',
+                '【毎日のやり方】',
+                '1. 教科を選んでタイマー出勤（環境音や1週間計画も使えます）',
+                '2. 終わったら8文字以上の日報を書いてカフェを進化させよう',
+                '3. 1日の終わりに「退勤・PDF」タブから ①Googleフォーム送信 ②超軽量PDFをこの課題に提出！',
+                '※学校PCと自宅スマホ両方使う人は、設定タブの「📷 引き継ぎQR」で合体できます。'
+            ].join('\n');
+            const postNewYear = [
+                '【新年度テスト勉強記録アプリ：テスト前夜の虚無バイト】',
+                '進級＆新年度おめでとう！今年度も定期考査・課題テストの学習記録に使います。',
+                '※下のリンクを開くと自動で「🌸 新年度のクラス選択画面」が出るので、新しいクラスを選んでスタートしてね！（去年のガチャ図鑑や記録はそのまま引き継がれます）',
+                '',
+                '▼ 新年度アプリを開く（まずはこのリンクから！）',
+                '（ここに新年度シート B9 の配布URLを貼る）',
+                '',
+                '▼ 新年度 公開用・二つ名ランキング表（本名は出ません）',
+                '（ここに新年度シート B10 の公開ランキングURLを貼る）'
+            ].join('\n');
+            const postBox = document.getElementById('classroom-post-sample');
+            const postToast = document.getElementById('post-copy-toast');
+            document.getElementById('btn-copy-post-normal')?.addEventListener('click', () => {
+                if (postBox) postBox.value = postNormal;
+                if (navigator.clipboard) navigator.clipboard.writeText(postNormal).catch(() => {});
+                if (postToast) postToast.textContent = '✅ 通常テスト用のClassroom投稿例文をコピーしました！';
+            });
+            document.getElementById('btn-copy-post-newyear')?.addEventListener('click', () => {
+                if (postBox) postBox.value = postNewYear;
+                if (navigator.clipboard) navigator.clipboard.writeText(postNewYear).catch(() => {});
+                if (postToast) postToast.textContent = '🌸 新年度(4月)用のClassroom投稿例文をコピーしました！';
+            });
+
+            document.getElementById('btn-gen-config')?.addEventListener('click', generateConfigText);
+            document.getElementById('btn-copy-config')?.addEventListener('click', () => {
+                const out = document.getElementById('cfg-output');
+                if (navigator.clipboard && out) navigator.clipboard.writeText(out.value).catch(() => {});
+                const t = document.getElementById('cfg-copy-toast');
+                if (t) t.textContent = '✅ config.js をコピーしました！';
+            });
+            document.getElementById('btn-copy-dist-url')?.addEventListener('click', () => {
+                const out = document.getElementById('dist-url-output');
+                if (navigator.clipboard && out) navigator.clipboard.writeText(out.value).catch(() => {});
+                const t = document.getElementById('dist-copy-toast');
+                if (t) t.textContent = '✅ Classroom配布用URLをコピーしました！';
+            });
+        });
+    </script>
+</body>
+</html>
+
